@@ -10,7 +10,9 @@ export default {
       let availableHotels = [];
       if (xml.checkdisponibilita.hotellist.hotel.constructor === Array) {
         xml.checkdisponibilita.hotellist.hotel.forEach((hotel) => {
-          availableHotels.push(formatHotel(hotel));
+          if (hotel.prezzominimo > 0) {
+            availableHotels.push(formatHotel(hotel));
+          }
         });
       }
       return cb(null, availableHotels);
@@ -22,7 +24,7 @@ function formatHotel (hotel) {
   return {
     id: hotel.id,
     name: hotel.nome,
-    address: hotel.address,
+    address: hotel.indirizzo,
     zip: hotel.cap,
     country: hotel.nazione,
     shortDescription: hotel.descrizionebreve,
