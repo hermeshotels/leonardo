@@ -1,0 +1,284 @@
+{
+  "db": {
+    "name": "db",
+    "connector": "memory"
+  },
+  "mysql": {
+    "host": "localhost",
+    "port": 3306,
+    "url": "",
+    "database": "ermleonardo",
+    "password": "hermes2015",
+    "name": "mysql",
+    "user": "root",
+    "connector": "mysql"
+  },
+  "ermMongo": {
+    "host": "127.0.0.1",
+    "port": 27017,
+    "database": "ermes",
+    "name": "ermMongo",
+    "connector": "mongodb"
+  },
+  "ermapi": {
+    "name": "ermapi",
+    "baseURL": "https://secure.ermeshotels.com",
+    "crud": false,
+    "debug": true,
+    "connector": "rest",
+    "operations": [
+      {
+        "template": {
+          "method": "GET",
+          "url": "https://secure.ermeshotels.com/customersflash/hotellist.do?method=hotelList",
+          "query": {
+            "ca_id": "{channel}",
+            "ho_id": "{hotel}",
+            "ln_id": "{language}"
+          }
+        },
+        "functions": {
+          "channelData": [
+            "channel",
+            "hotel",
+            "language"
+          ]
+        }
+      },
+      {
+        "template": {
+          "method": "GET",
+          "url": "https://secure.ermeshotels.com/customersflash/calendar.do?method=calendar",
+          "query": {
+            "ca_id": "{channel}",
+            "ho_id": "{hotel}",
+            "mese": "{month}",
+            "year": "{year}"
+          }
+        },
+        "functions": {
+          "calendar": [
+            "channel",
+            "hotel",
+            "month",
+            "year"
+          ]
+        }
+      },
+      {
+        "template": {
+          "method": "GET",
+          "url": "https://secure.ermeshotels.com/customersflash/avail.do?method=search",
+          "query": {
+            "ca_id": "{channel}",
+            "ho_id": "{hotel}",
+            "ln_id": "{language}",
+            "dataArrivo": "{arrival}",
+            "dataPartenza": "{departure}",
+            "ar_id1": "{rateid1}",
+            "ar_id2": "{rateid2}",
+            "ar_id3": "{rateid3}",
+            "adulti": "{adults}",
+            "bambini": "{childs}",
+            "avail_etaBambini": "{childsAge}",
+            "mt_id": "{macroId}",
+            "pc_id": "{packageId}",
+            "cl_id": "{customerId}",
+            "username": "{username}",
+            "password": "{password}",
+            "promoCode": "{promoCode}",
+            "ignoraDispoReale": "{ignoreDispo}"
+          }
+        },
+        "functions": {
+          "dispo": [
+            "channel",
+            "hotel",
+            "language",
+            "arrival",
+            "departure",
+            "rateid1",
+            "rateid2",
+            "rateid3",
+            "adults",
+            "childs",
+            "childsAge",
+            "macroId",
+            "packageId",
+            "customerId",
+            "username",
+            "password",
+            "promoCode",
+            "ignoreDispo"
+          ]
+        }
+      },
+      {
+        "template": {
+          "method": "GET",
+          "url": "https://secure.ermeshotels.com/customersflash/availChannelCheck.do?method=search",
+          "query": {
+            "ca_id": "{channel}",
+            "lc_id": "{destination}",
+            "ln_id": "{language}",
+            "dataArrivo": "{arrival}",
+            "dataPartenza": "{departure}",
+            "adulti": "{adults}",
+            "childs": "{childs}",
+            "etaBambini": "{childsAge}",
+            "adulti2": "{adults2}",
+            "bambini2": "{childs2}",
+            "etaBambini2": "{childsAge2}",
+            "adulti3": "{adults3}",
+            "bambini3": "{childs3}",
+            "etaBambini3": "{childsAge3}",
+            "adulti4": "{adults4}",
+            "bambini4": "{childs4}",
+            "etaBambini4": "{childsAge4}",
+            "cl_id": "{customerId}"
+          }
+        },
+        "functions": {
+          "portal": [
+            "channel",
+            "destination",
+            "language",
+            "arrival",
+            "departure",
+            "adults",
+            "childs",
+            "childsAge",
+            "adults2",
+            "childs2",
+            "childsAge2",
+            "adults3",
+            "childs3",
+            "childsAge3",
+            "adults4",
+            "childs4",
+            "childsAge4",
+            "customerId"
+          ]
+        }
+      },
+      {
+        "template": {
+          "method": "GET",
+          "url": "https://secure.ermeshotels.com/customersflash/guestdata.do?method=confirm",
+          "query": {
+            "ca_id": "{channel}",
+            "ho_id": "{hotel}",
+            "ln_id": "{language}",
+            "dataArrivo": "{arrival}",
+            "dataPartenza": "{departure}",
+            "ar_id": "{rateid1}",
+            "adulti": "{adults}",
+            "bambini": "{childs}",
+            "avail_etaBambini": "{childsAge}",
+            "prezzi": "{prices}",
+            "servizi": "{services}",
+            "ar_id2": "{rateid2}",
+            "adulti2": "{adults2}",
+            "bambini2": "{childs2}",
+            "avail_etaBambini2": "{childsAge2}",
+            "prezzi2": "{prices2}",
+            "servizi2": "{services2}",
+            "ar_id3": "{rateid3}",
+            "adulti3": "{adults3}",
+            "bambini3": "{childs3}",
+            "avail_etaBambini3": "{childsAge3}",
+            "prezzi3": "{prices3}",
+            "servizi3": "{services3}",
+            "ar_id4": "{rateid4}",
+            "adulti4": "{adults4}",
+            "bambini4": "{childs4}",
+            "avail_etaBambini4": "{childsAge4}",
+            "prezzi4": "{prices4}",
+            "servizi4": "{services4}",
+            "cl_id": "{customerId}",
+            "promoCode": "{promoCode}",
+            "nominativo": "{fullname}",
+            "indirizzo": "{address}",
+            "cap": "{zip}",
+            "citta": "{city}",
+            "provincia": "{province}",
+            "nazione": "{country}",
+            "mail": "{mail}",
+            "note": "{note}",
+            "tipoCarta": "{cardType}",
+            "numeroCarta": "{cardNumber}",
+            "scadenzaCarta": "{cardDate}",
+            "titolareCarta": "{cardName}",
+            "cvCarta": "{cardCv}"
+          }
+        },
+        "functions": {
+          "confirm": [
+            "channel",
+            "hotel",
+            "language",
+            "arrival",
+            "departure",
+            "rateid1",
+            "adults",
+            "childs",
+            "childsAge",
+            "prices",
+            "services",
+            "rateid2",
+            "adults2",
+            "childs2",
+            "childsAge2",
+            "prices2",
+            "services2",
+            "rateid3",
+            "adults3",
+            "childs3",
+            "childsAge3",
+            "prices3",
+            "services3",
+            "rateid4",
+            "adults4",
+            "childs4",
+            "childsAge4",
+            "prices4",
+            "services4",
+            "customerId",
+            "promoCode",
+            "fullname",
+            "address",
+            "zip",
+            "city",
+            "province",
+            "country",
+            "mail",
+            "note",
+            "cardType",
+            "cardNumber",
+            "cardDate",
+            "cardName",
+            "cardCv"
+          ]
+        }
+      },
+      {
+        "template": {
+          "method": "GET",
+          "url": "https://secure.ermeshotels.com/customersflash/retrieve.do?method=retrieve",
+          "query": {
+            "ca_id": "{channel}",
+            "codice_prenotazione": "{resCode}",
+            "mail": "{mail}"
+          }
+        },
+        "functions": {
+          "recover": [
+            "channel",
+            "resCode",
+            "mail"
+          ]
+        }
+      }
+    ]
+  }
+}
