@@ -1,0 +1,27 @@
+{
+  "name": "RoomGallery",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "url": {
+      "type": "string",
+      "required": true
+    },
+    "order": {
+      "type": "number"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "room": {
+      "type": "belongsTo",
+      "model": "room",
+      "foreignKey": ""
+    }
+  },
+  "acls": [],
+  "methods": {}
+}
