@@ -35,7 +35,7 @@ export default {
             channel.hotels.push(formatHotel(hotel));
           });
         } else {
-          channel.hotels.push(formatHotel(hotel));
+          channel.hotels.push(formatHotel(xml.daticanale.hotellist.hotel));
         }
         return cb(null, channel);
       } else {
