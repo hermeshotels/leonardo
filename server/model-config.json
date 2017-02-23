@@ -33,27 +33,27 @@
     "public": false
   },
   "Hotel": {
-    "dataSource": "mysql",
+    "dataSource": "db",
     "public": true
   },
   "Room": {
-    "dataSource": "mysql",
+    "dataSource": "db",
     "public": true
   },
   "RoomGallery": {
-    "dataSource": "mysql",
+    "dataSource": "db",
     "public": true
   },
   "Rate": {
-    "dataSource": "mysql",
+    "dataSource": "db",
     "public": true
   },
   "Inventory": {
-    "dataSource": "mysql",
+    "dataSource": "db",
     "public": true
   },
   "RateLevel": {
-    "dataSource": "mysql",
+    "dataSource": "db",
     "public": true
   },
   "ApiGateway": {
