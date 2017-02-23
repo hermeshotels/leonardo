@@ -3,16 +3,6 @@
     "name": "db",
     "connector": "memory"
   },
-  "mysql": {
-    "host": "localhost",
-    "port": 3306,
-    "url": "",
-    "database": "ermleonardo",
-    "password": "hermes2015",
-    "name": "mysql",
-    "user": "root",
-    "connector": "mysql"
-  },
   "ermMongo": {
     "host": "127.0.0.1",
     "port": 27017,
