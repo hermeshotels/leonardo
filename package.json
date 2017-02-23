@@ -6,7 +6,7 @@
     "lint": "eslint .",
     "start": "node .",
     "watch": "./node_modules/.bin/nodemon --exec babel-node .",
-    "build": "babel . --out-dir lib --ignore node_modules",
+    "build": "babel . --out-dir lib --ignore node_modules,lib",
     "posttest": "npm run lint && nsp check"
   },
   "dependencies": {
