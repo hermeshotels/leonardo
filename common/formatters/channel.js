@@ -15,19 +15,21 @@ export default {
           hotels: []
         };
         // set up channel active destinations
-        if (xml.daticanale.mappa.listacitta.citta.constructor === Array) {
-          // there are multiple destinations linked to the channel
-          xml.daticanale.mappa.listacitta.citta.forEach(function (city) {
-            channel.destinations.push({
-              id: city.id,
-              name: city.nome
+        if (xml.daticanale.mappa && xml.daticanale.mappa.listacitta) {
+          if (xml.daticanale.mappa.listacitta.citta.constructor === Array) {
+            // there are multiple destinations linked to the channel
+            xml.daticanale.mappa.listacitta.citta.forEach(function (city) {
+              channel.destinations.push({
+                id: city.id,
+                name: city.nome
+              });
             });
-          });
-        } else {
-          channel.destinations.push({
-            id: xml.daticanale.mappa.listacitta.citta.id,
-            name: xml.daticanale.mappa.listacitta.citta.nome
-          })
+          } else {
+            channel.destinations.push({
+              id: xml.daticanale.mappa.listacitta.citta.id,
+              name: xml.daticanale.mappa.listacitta.citta.nome
+            })
+          }
         }
         // setup active hotels
         if (xml.daticanale.hotellist.hotel.constructor === Array) {

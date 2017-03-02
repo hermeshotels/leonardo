@@ -126,9 +126,14 @@ function formatRate (rate) {
 
 function formatServices (services) {
   let formattedServices = [];
-  if (services.data && services.data.constructor === Array) {
-    let serviceFound = false;
+  if (services.data.constructor !== Array) {
+    let serviceArray = []
+    serviceArray.push(services.data)
+    services.data = serviceArray
+  }
+  let serviceFound = false;
     services.data.forEach((day) => {
+      console.log(day)
       // scorro la lista dei giorni che includono la lista dei servizi disponibili
       day.lista.servizio.forEach((service) => {
         // scorro tutti i servizi disponibili per questo giorno
@@ -171,6 +176,5 @@ function formatServices (services) {
         }
       });
     });
-  }
   return formattedServices;
 }

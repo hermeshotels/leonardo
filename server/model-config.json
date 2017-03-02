@@ -32,35 +32,7 @@
     "dataSource": "db",
     "public": false
   },
-  "Hotel": {
-    "dataSource": "db",
-    "public": true
-  },
-  "Room": {
-    "dataSource": "db",
-    "public": true
-  },
-  "RoomGallery": {
-    "dataSource": "db",
-    "public": true
-  },
-  "Rate": {
-    "dataSource": "db",
-    "public": true
-  },
-  "Inventory": {
-    "dataSource": "db",
-    "public": true
-  },
-  "RateLevel": {
-    "dataSource": "db",
-    "public": true
-  },
   "ApiGateway": {
-    "dataSource": "ermapi",
-    "public": false
-  },
-  "ApiFormatter": {
     "dataSource": null,
     "public": true
   },

@@ -8,12 +8,15 @@ export default {
       Ermes ritorna anche hotel non disponibili con tariffa a 0, li escludo
       */
       let availableHotels = [];
-      if (xml.checkdisponibilita.hotellist.hotel.constructor === Array) {
-        xml.checkdisponibilita.hotellist.hotel.forEach((hotel) => {
-          if (hotel.prezzominimo > 0) {
-            availableHotels.push(formatHotel(hotel));
-          }
-        });
+      console.log(xml)
+      if (xml.checkdisponibilita.hotellist.hotel) {
+        if (xml.checkdisponibilita.hotellist.hotel.constructor === Array) {
+          xml.checkdisponibilita.hotellist.hotel.forEach((hotel) => {
+            if (parseFloat(hotel.prezzominimo) > 0) {
+              availableHotels.push(formatHotel(hotel));
+            }
+          });
+        }
       }
       return cb(null, availableHotels);
     });
