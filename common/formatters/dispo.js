@@ -61,27 +61,27 @@ function formatRoom (rate) {
   }
 
   if(rate.camera.fotocamera) {
-    formattedRoom.gallery.push(rate.camera.fotocamera)
+    formattedRoom.gallery.push(rate.camera.fotocamera.replace(/\s+/g, '%20'))
   }
 
   if(rate.camera.fotocamera2) {
-    formattedRoom.gallery.push(rate.camera.fotocamera2)
+    formattedRoom.gallery.push(rate.camera.fotocamera2.replace(/\s+/g, '%20'))
   }
 
   if(rate.camera.fotocamera3) {
-    formattedRoom.gallery.push(rate.camera.fotocamera3)
+    formattedRoom.gallery.push(rate.camera.fotocamera3.replace(/\s+/g, '%20'))
   }
 
   if(rate.camera.fotocamera4) {
-    formattedRoom.gallery.push(rate.camera.fotocamera4)
+    formattedRoom.gallery.push(rate.camera.fotocamera4.replace(/\s+/g, '%20'))
   }
 
   if(rate.camera.fotocamera5) {
-    formattedRoom.gallery.push(rate.camera.fotocamera5)
+    formattedRoom.gallery.push(rate.camera.fotocamera5.replace(/\s+/g, '%20'))
   }
 
   if(rate.camera.fotocamera6) {
-    formattedRoom.gallery.push(rate.camera.fotocamera6)
+    formattedRoom.gallery.push(rate.camera.fotocamera6.replace(/\s+/g, '%20'))
   }
 
   return formattedRoom;
@@ -159,10 +159,10 @@ function formatServices (services) {
             fascia: service.idfascia,
             name: service.nomeservizio,
             description: service.descrizioneservizio,
-            image: service.fotoservizio,
+            image: service.fotoservizio.replace(/\s+/g, '%20'),
             price: service.prezzoservizio,
+            fullStay: (service.interosogg === 'true'),
             qty: 0,
-            total: 0,
             days: [
               {
                 date: day.$.date,

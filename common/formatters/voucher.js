@@ -1,6 +1,7 @@
 import xmlParser from './xmlparser';
 export default {
   format: (xmlData, code, cb) => {
+    console.log(xmlData)
     let reservations = [];
     xmlData.forEach((reservation) => {
       xmlParser.parseString(reservation, (error, xml) => {
@@ -28,7 +29,6 @@ export default {
     voucher.guest.phone = mainRes.datiguest.telefono;
     voucher.guest.note = mainRes.datiguest.note;
     reservations.forEach((reservation) => {
-      console.log(reservation);
       voucher.rooms.push(formatResRoom(reservation.datiprenotazione.prenotazione));
       voucher.grandTotal += parseFloat(reservation.datiprenotazione.prenotazione.totale);
     });

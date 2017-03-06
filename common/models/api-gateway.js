@@ -8,7 +8,7 @@ import recoverFormatter from '../formatters/recover';
 import reservationFormatter from '../formatters/reservation';
 import voucherFormatter from '../formatters/voucher';
 import request from 'request';
-import ajv from 'ajv';
+import Ajv from 'ajv';
 import Q from 'q';
 
 module.exports = function(ApiGateway) {
@@ -25,6 +25,7 @@ module.exports = function(ApiGateway) {
     request.get({
       url: 'https://secure.ermeshotels.com/customersflash/hotellist.do?method=hotelList',
       qs: qs,
+      encoding: 'binary',
       useQueryString: true
     }, (error, response, data) => {
       if (error) return cb(error, null);
@@ -45,6 +46,7 @@ module.exports = function(ApiGateway) {
     request.get({
       url: 'https://secure.ermeshotels.com/customersflash/calendar.do?method=calendar',
       qs: qs,
+      encoding: 'binary',
       useQueryString: true
     }, (error, response, data) => {
       if (error) return cb(error, null);
@@ -91,12 +93,13 @@ module.exports = function(ApiGateway) {
     }
 
     if (filters.promocode) {
-      qs.promocode = filters.promocode
+      qs.promoCode = filters.promocode
     }
 
     request.get({
       url: 'https://secure.ermeshotels.com/customersflash/avail.do?method=search',
       qs: qs,
+      encoding: 'binary',
       useQueryString: true
     }, (error, response, data) => {
       if (error) return cb(error, null)
@@ -142,6 +145,7 @@ module.exports = function(ApiGateway) {
     request.get({
       'url': 'https://secure.ermeshotels.com/customersflash/availChannelCheck.do?method=search',
       qs: qs,
+      encoding: 'binary',
       useQueryString: true
     }, (error, response, data) => {
       if (error) return cb(error, null)
@@ -152,8 +156,8 @@ module.exports = function(ApiGateway) {
     })
   }
 
-  ApiGateway.confirm = (reservation, cb) => {
-    // json validation
+  ApiGateway.confirm = (reservationData, cb) => {
+    /* json validation
     let schema = {
       type: 'object',
       required: [
@@ -161,52 +165,56 @@ module.exports = function(ApiGateway) {
         'hotel',
         'arrival',
         'departure',
-        'fullname',
-        'zip',
-        'address',
-        'city',
-        'province',
-        'country',
-        'mail',
-        'note',
-        'cardType',
-        'cardNumber',
-        'carDate',
-        'cardName',
-        'cardCv'
+        'details.fullname',
+        'details.zip',
+        'details.address',
+        'details.city',
+        'details.province',
+        'details.country',
+        'details.email',
+        'details.note',
+        'card.type',
+        'card.number',
+        'card.expire',
+        'card.holder',
+        'card.cvv'
       ]
     }
 
-    let valid = ajv.validate(schema, reservation);
+    let ajv = new Ajv()
+    let valid = ajv.validate(schema, reservationData);
+    */
     
     let qs = {
-      ca_id: reservation.channel,
-      ho_id: reservation.hotel,
-      ln_id: reservation.language,
-      dataArrivo: reservation.arrival,
-      dataPartenza: reservation.departure,
-      nominativo: reservation.details.fullname,
-      indirizzo: reservation.details.address,
-      cap: reservation.details.zip,
-      provincia: reservation.details.province,
-      nazione: reservation.details.country,
-      mail: reservation.details.email,
+      ca_id: reservationData.channel,
+      ho_id: reservationData.hotel,
+      ln_id: reservationData.language,
+      dataArrivo: reservationData.arrival,
+      dataPartenza: reservationData.departure,
+      nominativo: reservationData.details.fullname,
+      indirizzo: reservationData.details.address,
+      cap: reservationData.details.zip,
+      citta: reservationData.details.city,
+      provincia: reservationData.details.province,
+      nazione: reservationData.details.country,
+      mail: reservationData.details.email,
       smoking: false,
-      note: reservation.note,
-      tipoCarta: reservation.card.type,
-      numeroCarta: reservation.card.number,
-      scadenzaCarta: reservation.card.expire,
-      titolareCarta: reservation.card.holder,
-      cvCarta: reservation.card.cv
+      note: reservationData.details.note,
+      tipoCarta: reservationData.card.type,
+      numeroCarta: reservationData.card.number,
+      scadenzaCarta: reservationData.card.expire,
+      titolareCarta: reservationData.card.holder,
+      cvCarta: reservationData.card.cvv
     }
 
-    reservation.rooms.forEach((room, index) => {
+    reservationData.rooms.forEach((room, index) => {
       let indexPrefix = '';
       if (index > 0) {
         indexPrefix = (index + 1)
       }
-      qs['adults' + indexPrefix] = room.adults
-      qs['childs' + indexPrefix] = room.childs || 0
+      qs['ar_id' + indexPrefix] = room.rate.id
+      qs['adulti' + indexPrefix] = room.adults
+      qs['bambini' + indexPrefix] = room.childs || 0
       if (room.childs > 0) {
         qs['avail_etaBambini' + indexPrefix] = room.childsAge.join(',')
       }
@@ -214,7 +222,7 @@ module.exports = function(ApiGateway) {
       if (room.rate.overrided) {
         qs['prezzi' + indexPrefix] = []
         room.rate.prices.forEach((day) => {
-          reservationData['prezzi' + indexPrefix].push(day.price)
+          qs['prezzi' + indexPrefix].push(day.price)
         })
       }
     })
@@ -222,6 +230,7 @@ module.exports = function(ApiGateway) {
     request.get({
       url: 'https://secure.ermeshotels.com/customersflash/guestdata.do?method=confirm',
       qs: qs,
+      encoding: 'binary',
       userQueryString: true
     }, (error, response, data) => {
       if (error) return cb(error, null)
@@ -233,7 +242,7 @@ module.exports = function(ApiGateway) {
           date: new Date(),
           hotel: reservationData.hotel,
           channel: reservationData.channel,
-          email: reservationData.mail
+          email: reservationData.details.email
         }, (error, model) => {
           if (error) return cb(error, null);
           return cb(null, model);
@@ -273,7 +282,14 @@ module.exports = function(ApiGateway) {
       }
     }, (error, data) => {
       if (error) return cb(error, null);
+      if (!data) {
+        return cb(null, null)
+      }
       recoverFromErmes(data.channel, data.rescodes, data.email).then((reslist) => {
+        if (reslist[0].indexOf('errore') > -1) {
+          // errore nel recupero della prenotazione
+          return cb(null, [])
+        }
         voucherFormatter.format(reslist, data.code, (error, voucher) => {
           if (error) return cb(error, null);
           return cb(null, voucher);
@@ -290,9 +306,10 @@ module.exports = function(ApiGateway) {
     let resList = []
     codes.forEach((code) => {
       request.get({
-        url: 'https://seure.ermeshotels.com/customersflash/retrieve.do?method=retrieve',
+        url: 'https://secure.ermeshotels.com/customersflash/retrieve.do?method=retrieve',
         qs: { ca_id: channel, codice_prenotazione: code, mail: email},
-        userQueryString: true
+        userQueryString: true,
+        encoding: 'binary'
       }, (error, response, data) => {
         if (error) throw new Error(error)
         resList.push(data);
