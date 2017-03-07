@@ -1,7 +1,6 @@
 import xmlParser from './xmlparser';
 export default {
   format: (xmlData, code, cb) => {
-    console.log(xmlData)
     let reservations = [];
     xmlData.forEach((reservation) => {
       xmlParser.parseString(reservation, (error, xml) => {

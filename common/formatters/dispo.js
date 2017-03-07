@@ -133,7 +133,6 @@ function formatServices (services) {
   }
   let serviceFound = false;
     services.data.forEach((day) => {
-      console.log(day)
       // scorro la lista dei giorni che includono la lista dei servizi disponibili
       day.lista.servizio.forEach((service) => {
         // scorro tutti i servizi disponibili per questo giorno

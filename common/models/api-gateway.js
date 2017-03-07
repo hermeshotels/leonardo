@@ -10,6 +10,7 @@ import voucherFormatter from '../formatters/voucher';
 import request from 'request';
 import Ajv from 'ajv';
 import Q from 'q';
+import logger from '../logger';
 
 module.exports = function(ApiGateway) {
   ApiGateway.channel = function (channel, hotel, language, cb) {
@@ -95,6 +96,8 @@ module.exports = function(ApiGateway) {
     if (filters.promocode) {
       qs.promoCode = filters.promocode
     }
+
+    logger.verbose('checkDispo ' + JSON.stringify(qs))
 
     request.get({
       url: 'https://secure.ermeshotels.com/customersflash/avail.do?method=search',
@@ -207,6 +210,8 @@ module.exports = function(ApiGateway) {
       cvCarta: reservationData.card.cvv
     }
 
+    logger.verbose(qs)
+
     reservationData.rooms.forEach((room, index) => {
       let indexPrefix = '';
       if (index > 0) {
@@ -231,7 +236,7 @@ module.exports = function(ApiGateway) {
       url: 'https://secure.ermeshotels.com/customersflash/guestdata.do?method=confirm',
       qs: qs,
       encoding: 'binary',
-      userQueryString: true
+      useQueryString: true
     }, (error, response, data) => {
       if (error) return cb(error, null)
       reservationFormatter.format(data, (error, reservation) => {
@@ -260,18 +265,7 @@ module.exports = function(ApiGateway) {
       }
     }, (error, data) => {
       if (error) return cb(error, null);
-      if (data) {
-       recoverFromErmes(reservation.channel, data.rescodes, reservation.email).then((reslist) => {
-          voucherFormatter.format(reslist, data.code, (error, voucher) => {
-            if (error) return cb(error, null);
-            return cb(null, voucher);
-          });
-        }).fail((error) => {
-          return cb(error, null);
-        }); 
-      } else {
-        return cb(null, {})
-      }
+      return cb(null, data)
     });
   }
 
@@ -288,7 +282,7 @@ module.exports = function(ApiGateway) {
       recoverFromErmes(data.channel, data.rescodes, data.email).then((reslist) => {
         if (reslist[0].indexOf('errore') > -1) {
           // errore nel recupero della prenotazione
-          return cb(null, [])
+          return cb(null, null)
         }
         voucherFormatter.format(reslist, data.code, (error, voucher) => {
           if (error) return cb(error, null);
@@ -300,6 +294,31 @@ module.exports = function(ApiGateway) {
     });
   }
 
+  ApiGateway.delete = (id, code, cb) => {
+    ApiGateway.app.models.BolReservation.findOne({
+      where: {
+        rescodes: code
+      }
+    }, (error, data) => {
+      if (error) return cb(error, null)
+      request.get({
+        url: 'https://secure.ermeshotels.com/customersflash/delete.do?method=delete',
+        qs: {
+          pr_id: id,
+          ca_id: data.channel
+        },
+        useQueryString: true,
+        enconding: 'binary'
+      }, (error, response, data) => {
+        if (error) return cb(error, null)
+        if (data.indexOf('errore') > -1) {
+          return cb(null, {cancelled: false, error: 'Reservation not found'})
+        }
+        return cb(null, {cancelled: true})
+      })
+    })
+  }
+
   function recoverFromErmes (channel, codes, email) {
     let defer = Q.defer()
     let progress = 0
@@ -308,7 +327,7 @@ module.exports = function(ApiGateway) {
       request.get({
         url: 'https://secure.ermeshotels.com/customersflash/retrieve.do?method=retrieve',
         qs: { ca_id: channel, codice_prenotazione: code, mail: email},
-        userQueryString: true,
+        useQueryString: true,
         encoding: 'binary'
       }, (error, response, data) => {
         if (error) throw new Error(error)
@@ -415,6 +434,17 @@ module.exports = function(ApiGateway) {
       {arg: 'code', type: 'string', required: true}
     ],
     returns: { arg: 'voucher', type: 'Object'}
+  });
+
+  ApiGateway.remoteMethod('delete', {
+    http: {
+      verb: 'GET'
+    },
+    accepts: [
+      {arg: 'id', type: 'string', required: true},
+      {arg: 'code', type: 'string', required: true}
+    ],
+    returns: { arg: 'deleted', type: 'Object'}
   });
 
 };
