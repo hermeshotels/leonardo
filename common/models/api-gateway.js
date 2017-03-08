@@ -246,7 +246,7 @@ module.exports = function(ApiGateway) {
       if (service.qty > 0) {
         service.days.forEach((day) => {
           if (day.selected > 0) {
-            qs.servizi = `${day.date};${service.id};${service.fascia};${day.selected}/`
+            qs.servizi += `${day.date};${service.id};${service.fascia};${day.selected}/`
           }
         })
       }
