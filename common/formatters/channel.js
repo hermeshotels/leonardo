@@ -3,6 +3,11 @@ export default {
   format: (xmlData, cb) => {
     xmlParser.parseString(xmlData, function (error, xml) {
       if (error) return cb(error, null);
+      if (xml.daticanale.hotellist === '\r\n\t\r\n') {
+        let error = new Error('no hotels found')
+        error.statusCode = 404
+        return cb(error, null)
+      }
       if (xml.daticanale) {
         let channel = {
           id: xml.daticanale.id,
