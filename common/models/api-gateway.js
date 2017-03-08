@@ -211,7 +211,12 @@ module.exports = function(ApiGateway) {
     }
 
     logger.verbose(qs)
-
+    /*
+    Parse delle camere, scorro ogni camera agganciata alla prenotazione
+    ed imposto la tariffa selezionata gli adulti i possibili bambini e le
+    relative età, se ci sono override di prezzi per la tariffa specifica
+    li imposto così da sovrascriverla
+    */
     reservationData.rooms.forEach((room, index) => {
       let indexPrefix = '';
       if (index > 0) {
@@ -228,6 +233,21 @@ module.exports = function(ApiGateway) {
         qs['prezzi' + indexPrefix] = []
         room.rate.prices.forEach((day) => {
           qs['prezzi' + indexPrefix].push(day.price)
+        })
+      }
+    })
+    /*
+    Parse dei servizi, scorro ogni servizio e controllo se la quantità
+    selezionata è maggiore di 0, in caso positivo controllo per quali giorni
+    è stato selezionato e lo aggiungo alla prima camera.
+    TODO: distinzione dei servizi per camera
+    */
+    reservationData.services.forEach((service) => {
+      if (service.qty > 0) {
+        service.days.forEach((day) => {
+          if (day.selected > 0) {
+            qs.servizi = `${day.date};${service.id};${service.fascia};${day.selected}/`
+          }
         })
       }
     })
