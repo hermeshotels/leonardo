@@ -42,6 +42,7 @@ function formatResRoom (reservation) {
     name: reservation.camera.nomecamera,
     adults: parseInt(reservation.adulti),
     childs: parseInt(reservation.bambini),
+    services: [],
     rate: {
       id: reservation.tariffa.idtariffa,
       name: reservation.tariffa.nometariffa,
@@ -52,6 +53,35 @@ function formatResRoom (reservation) {
       cancellationPolicy: reservation.cancellationpolicy
     },
     total: reservation.totale
+  }
+  if (reservation.servizi && reservation.servizi.servizio && reservation.servizi.servizio.constructor === Array) {
+    reservation.servizi.servizio.forEach((service) => {
+      let serviceIndex = res.services.findIndex((addedService) => {
+        return parseInt(addedService.id) === parseInt(service.id)
+      })
+      if (serviceIndex > -1) {
+        // il servizio esiste
+        res.services[serviceIndex].qty++
+        res.services[serviceIndex].price += parseFloat(service.prezzo)
+        res.services[serviceIndex].days.push({
+          day: service.data,
+          qty: parseInt(service.numero),
+          price: parseFloat(service.prezzo)
+        })
+      } else {
+        res.services.push({
+          id: service.id,
+          name: service.nome,
+          qty: 0,
+          price: parseFloat(service.prezzo),
+          days: [{
+            day: service.data,
+            qty: parseInt(service.numero),
+            price: parseFloat(service.prezzo)
+          }]
+        })
+      }
+    })
   }
   return res;
 }
