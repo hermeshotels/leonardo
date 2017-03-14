@@ -1,0 +1,38 @@
+{
+  "name": "BolRequest",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "hotelId": {
+      "type": "number",
+      "required": true
+    },
+    "success": {
+      "type": "number",
+      "required": true,
+      "default": 0
+    },
+    "fail": {
+      "type": "number",
+      "required": true,
+      "default": 0
+    },
+    "conversionRate": {
+      "type": "number",
+      "required": true,
+      "default": 0
+    },
+    "list": {
+      "type": [
+        "object"
+      ]
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

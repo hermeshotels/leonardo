@@ -51,7 +51,7 @@ function formatRoom (rate) {
     inRoom: {
       ariConditioning: (rate.camera.ariacond === 'true'),
       wifi: (rate.camera.wifi === 'true'),
-      tvSat: (rate.camera.tvsta === 'true'),
+      tvSat: (rate.camera.tvsat === 'true'),
       bath: (rate.camera.jacuzzi === 'true'),
       shower: (rate.camera.doccia === 'true')
     },

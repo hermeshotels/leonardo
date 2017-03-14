@@ -39,5 +39,13 @@
   "BolReservation": {
     "dataSource": "ermMongo",
     "public": true
+  },
+  "BolRequest": {
+    "dataSource": "ermMongo",
+    "public": true
+  },
+  "BolSettings": {
+    "dataSource": "ermMongo",
+    "public": true
   }
 }

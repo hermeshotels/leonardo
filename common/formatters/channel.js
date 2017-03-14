@@ -8,7 +8,7 @@ export default {
         error.statusCode = 404
         return cb(error, null)
       }
-      if (xml.daticanale.hotellist === '\r\n\t\r\n') {
+      if (!xml.daticanale || xml.daticanale.hotellist === '\r\n\t\r\n') {
         let error = new Error('no hotels found')
         error.statusCode = 404
         return cb(error, null)

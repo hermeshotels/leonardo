@@ -68,14 +68,18 @@ module.exports = function(ApiGateway) {
     }
 
     // Check for pre-selected rooms
+    let lastRoomIdx = null
     filters.rooms.forEach((room, index) => {
       if (room.rate && room.rate.id) {
         qs['ar_id' + (index + 1)] = room.rate.id
+      } else {
+        if (lastRoomIdx === null) {
+          lastRoomIdx = index
+        }
       }
     })
 
     // set search param based on the last room in the list of rooms
-    let lastRoomIdx = filters.rooms.length - 1
     qs.adulti = filters.rooms[lastRoomIdx].adults
     qs.bambini = filters.rooms[lastRoomIdx].childs
 
@@ -108,6 +112,33 @@ module.exports = function(ApiGateway) {
       if (error) return cb(error, null)
       dispoFormatter.format(data, (error, dispo) => {
         if (error) return cb(error, null)
+        // Registro il risultato della conversione
+        ApiGateway.app.models.BolRequest.findOrCreate(
+          {
+            where: {
+              hotelId: qs.ho_id
+            }
+          },
+          {
+            hotelId: qs.ho_id,
+            success: ((dispo.rooms) ? 1 : 0),
+            fail: ((!dispo.rooms) ? 1 : 0)
+          },
+          (error, instance, created) => {
+            if (error) return cb(error, null)
+            if (instance) {
+              // document found
+              let update = {}
+              if (dispo.rooms) {
+                update['success'] = instance.success + 1
+              } else {
+                update['fail'] = instance.fail + 1
+              }
+              instance.updateAttributes(update)
+            }
+          }
+        )
+        // return the dispo query
         return cb(null, dispo)
       })
     })
@@ -297,10 +328,12 @@ module.exports = function(ApiGateway) {
     }, (error, data) => {
       if (error) return cb(error, null);
       if (!data) {
+        logger.verbose(`Reservation not found: ${data} with code: ${code}`)
         return cb(null, null)
       }
       recoverFromErmes(data.channel, data.rescodes, data.email).then((reslist) => {
         if (reslist[0].indexOf('errore') > -1) {
+          logger.verbose(`Reservation not found code: ${data.rescodes}, channel: ${data.channel}, email: ${data.email}`)
           // errore nel recupero della prenotazione
           return cb(null, null)
         }
@@ -321,6 +354,13 @@ module.exports = function(ApiGateway) {
       }
     }, (error, data) => {
       if (error) return cb(error, null)
+      if (data) {
+        let index = data.rescodes.indexOf(code)
+        if (index > -1 && data.rescodes.length > 1) {
+          data.rescodes.splice(index, 1)
+          data.save()
+        }
+      }
       request.get({
         url: 'https://secure.ermeshotels.com/customersflash/delete.do?method=delete',
         qs: {
@@ -332,9 +372,10 @@ module.exports = function(ApiGateway) {
       }, (error, response, data) => {
         if (error) return cb(error, null)
         if (data.indexOf('errore') > -1) {
+          logger.silly(`Reservation not found code: ${code}`)
           return cb(null, {cancelled: false, error: 'Reservation not found'})
         }
-        return cb(null, {cancelled: true})
+        return cb(null, {cancelled: true, code: code})
       })
     })
   }
@@ -344,13 +385,17 @@ module.exports = function(ApiGateway) {
     let progress = 0
     let resList = []
     codes.forEach((code) => {
+      logger.verbose(`[RECOVER] Recover by code from ermes ${code}, channel: ${channel}, email: ${email}`)
       request.get({
         url: 'https://secure.ermeshotels.com/customersflash/retrieve.do?method=retrieve',
-        qs: { ca_id: channel, codice_prenotazione: code, mail: email},
+        qs: {ca_id: channel, codice_prenotazione: code, mail: email},
         useQueryString: true,
         encoding: 'binary'
       }, (error, response, data) => {
-        if (error) throw new Error(error)
+        if (error) {
+          logger.verbose(error)
+          throw new Error(error)
+        }
         resList.push(data);
         progress++;
         if (progress === codes.length) {
