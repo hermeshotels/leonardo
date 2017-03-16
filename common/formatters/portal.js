@@ -8,7 +8,6 @@ export default {
       Ermes ritorna anche hotel non disponibili con tariffa a 0, li escludo
       */
       let availableHotels = [];
-      console.log(xml)
       if (xml.checkdisponibilita.hotellist.hotel) {
         if (xml.checkdisponibilita.hotellist.hotel.constructor === Array) {
           xml.checkdisponibilita.hotellist.hotel.forEach((hotel) => {

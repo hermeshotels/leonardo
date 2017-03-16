@@ -101,7 +101,7 @@ module.exports = function(ApiGateway) {
       qs.promoCode = filters.promocode
     }
 
-    logger.verbose('checkDispo ' + JSON.stringify(qs))
+    logger.verbose('[CHECKDISPO] ' + JSON.stringify(qs))
 
     request.get({
       url: 'https://secure.ermeshotels.com/customersflash/avail.do?method=search',
