@@ -238,10 +238,9 @@ module.exports = function(ApiGateway) {
       numeroCarta: reservationData.card.number,
       scadenzaCarta: reservationData.card.expire,
       titolareCarta: reservationData.card.holder,
-      cvCarta: reservationData.card.cvv
+      cvCarta: reservationData.card.cvv,
+      servizi: ''
     }
-
-    logger.verbose(qs)
     /*
     Parse delle camere, scorro ogni camera agganciata alla prenotazione
     ed imposto la tariffa selezionata gli adulti i possibili bambini e le
@@ -282,6 +281,8 @@ module.exports = function(ApiGateway) {
         })
       }
     })
+
+    logger.verbose('[CONFIRM] ' + JSON.stringify(qs))
 
     request.get({
       url: 'https://secure.ermeshotels.com/customersflash/guestdata.do?method=confirm',

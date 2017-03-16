@@ -54,6 +54,7 @@ function formatResRoom (reservation) {
     },
     total: reservation.totale
   }
+  console.log(reservation.servizi.servizio)
   if (reservation.servizi && reservation.servizi.servizio && reservation.servizi.servizio.constructor === Array) {
     reservation.servizi.servizio.forEach((service) => {
       let serviceIndex = res.services.findIndex((addedService) => {
@@ -72,7 +73,7 @@ function formatResRoom (reservation) {
         res.services.push({
           id: service.id,
           name: service.nome,
-          qty: 0,
+          qty: 1,
           price: parseFloat(service.prezzo),
           days: [{
             day: service.data,
