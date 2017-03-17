@@ -25,7 +25,7 @@ export default {
 }
 
 function formatHotel (hotel) {
-  return {
+  let formattedHotel = {
     id: hotel.id,
     name: hotel.nome,
     address: hotel.indirizzo,
@@ -34,7 +34,6 @@ function formatHotel (hotel) {
     shortDescription: hotel.descrizionebreve,
     longDescription: hotel.descrizione,
     terms: hotel.termini,
-    photo: hotel.foto,
     maxChildAge: hotel.etamaxbambini,
     pos: {
       lat: hotel.latitudine,
@@ -48,4 +47,8 @@ function formatHotel (hotel) {
     },
     bestRate: parseFloat(hotel.prezzominimo)
   }
+  if (hotel.foto) {
+    formattedHotel.photo = hotel.foto.replace(/\s+/g, '%20')
+  }
+  return formattedHotel
 }
