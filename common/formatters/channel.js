@@ -70,7 +70,6 @@ function formatHotel (hotel) {
     description: hotel.descrizione,
     shortDescription: hotel.descrizionebreve,
     terms: hotel.termini,
-    image: hotel.foto,
     logo: hotel.logo,
     rating: hotel.rating,
     maxChildAge: hotel.etamaxbambini,
@@ -84,7 +83,7 @@ function formatHotel (hotel) {
     }
   }
   if (hotel.foto) {
-    hotel.image = hotel.foto.replace(/\s+/g, '%20')
+    formattedHotel.image = hotel.foto.replace(/\s+/g, '%20')
   }
   return formattedHotel
 }
