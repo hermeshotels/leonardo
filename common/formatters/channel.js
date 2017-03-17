@@ -58,7 +58,7 @@ export default {
 }
 
 function formatHotel (hotel) {
-  return {
+  let formattedHotel = {
     id: hotel.id,
     name: hotel.nome,
     address: hotel.indirizzo,
@@ -83,4 +83,8 @@ function formatHotel (hotel) {
       lng: hotel.longitudine
     }
   }
+  if (hotel.foto) {
+    hotel.image = hotel.foto.replace(/\s+/g, '%20')
+  }
+  return formattedHotel
 }
