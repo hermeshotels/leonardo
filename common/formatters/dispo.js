@@ -13,6 +13,10 @@ export default {
       le camere per id per poi inviare al cliente un output sensato.
       */
       if (xml.datidisponibilita) {
+        // transform in array for processing
+        if (xml.datidisponibilita.disponibilita.constructor !== Array) {
+          xml.datidisponibilita.disponibilita = [xml.datidisponibilita.disponibilita]
+        }
         xml.datidisponibilita.disponibilita.forEach((rate) => {
           let room = dispo.rooms.find((processedRoom) => {
             return processedRoom.id === rate.camera.idcamera;
