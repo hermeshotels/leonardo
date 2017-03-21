@@ -90,6 +90,8 @@ function formatRoom (rate) {
 function formatRate (rate) {
   var formattedRate = {
     id: rate.id,
+    rateid: parseInt(rate.tariffa.id),
+    roomid: parseInt(rate.camera.id),
     name: rate.tariffa.nometariffa,
     description: rate.tariffa.descrizionetariffa,
     package: (rate.tariffa.pacchetto === 'true'),
