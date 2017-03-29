@@ -5,6 +5,9 @@ export default {
       console.log(xml)
       if (error) return cb(error, null);
       let codes = []
+      if (xml.errore) {
+        return cb(xml.errore, null)
+      }
       if (xml.datiprenotazione.prenotazione.constructor === Array) {
         xml.datiprenotazione.prenotazione.forEach((pren) => {
           codes.push(pren.codice);
