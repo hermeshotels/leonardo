@@ -404,11 +404,19 @@ module.exports = function(ApiGateway) {
               return document.querySelector('.lujscdp-hci').getAttribute('data-luh-i') === dates.substr(0, dates.indexOf(','))
             }, dates)
             .evaluate(() => {
-              let rateElements = document.querySelectorAll('.lhpr-content-item')
               let rates = []
-              for (var rateElement of rateElements.values()) {
-                const divText = rateElement.attributes
-                rates.push(divText)
+              let rateElements = document.getElementsByClassName('_dkf')
+              for (var j = 0; j < rateElements.length; j++) {
+                let rate = {
+                  provider: '',
+                  rate: rateElements[j].getAttribute('data-dp')
+                }
+                for (var i = 0; i < rateElements[j].childNodes.length; i++) {
+                  if (rateElements[j].childNodes[i].className == "_Tjf") {
+                    rate.provider = rateElements[j].childNodes[i].getAttribute('alt')
+                  }
+                }
+                rates.push(rate)
               }
               return rates
             })      
