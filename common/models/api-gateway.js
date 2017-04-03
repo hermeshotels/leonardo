@@ -408,22 +408,7 @@ module.exports = function(ApiGateway) {
               let rates = []
               for (var rateElement of rateElements.values()) {
                 const divText = rateElement.innerText
-                if (divText.indexOf('Booking.com') > -1) {
-                  rates.push({
-                    provider: 'Booking.com',
-                    rate: parseFloat(divText.substr(0, divText.indexOf(' ')))
-                  })
-                } else if (divText.indexOf('Expedia.it') > -1) {
-                  rates.push({
-                    provider: 'Expedia.it',
-                    rate: parseFloat(divText.substr(0, divText.indexOf(' ')))
-                  })
-                } else if (divText.indexOf('Hotels.com') > -1) {
-                  rates.push({
-                    provider: 'Hotels.com',
-                    rate: parseFloat(divText.substr(0, divText.indexOf(' ')))
-                  })
-                }
+                rates.push(divText)
               }
               return rates
             })      
