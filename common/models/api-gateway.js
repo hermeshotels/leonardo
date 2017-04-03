@@ -426,12 +426,11 @@ module.exports = function(ApiGateway) {
           })      
           .end()
           .then((document) => {
-            console.log(document)
             redisClient.hset(hotel, dates, JSON.stringify(document))
             return cb(null, document)
           })
           .catch(function (error) {
-            console.error('Search failed:', error);
+            return cb(error, null)
           })
       }
     })
