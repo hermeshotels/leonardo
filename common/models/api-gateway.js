@@ -408,7 +408,7 @@ module.exports = function(ApiGateway) {
               let rates = []
               for (var rateElement of rateElements.values()) {
                 const divText = rateElement.innerHtml
-                rates.puhs(divText)
+                rates.push(divText)
               }
               return rates
             })      
