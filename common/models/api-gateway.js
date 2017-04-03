@@ -8,9 +8,12 @@ import recoverFormatter from '../formatters/recover';
 import reservationFormatter from '../formatters/reservation';
 import voucherFormatter from '../formatters/voucher';
 import request from 'request';
+import Nightmare from 'nightmare'
 import Ajv from 'ajv';
 import Q from 'q';
 import logger from '../logger';
+import redis from 'redis';
+const redisClient = redis.createClient();
 
 module.exports = function(ApiGateway) {
   ApiGateway.channel = function (channel, hotel, language, cb) {
@@ -381,6 +384,59 @@ module.exports = function(ApiGateway) {
     })
   }
 
+  ApiGateway.scrapeGoogle = (hotel, uri, dates, cb) => {
+    
+    let cacheValue = redisClient.hget(hotel, dates, (err, replies) => {
+      if (err) return cb(err, null)
+      if (replies) {
+        // there is cachce data
+        return cb(null, JSON.parse(replies))
+      } else {
+        let nightmare = Nightmare({
+          waitTimeout: 90000
+        })
+        nightmare.goto(`https://google.com/search?q=${uri}#ahotel_dates=${dates}`)
+          .wait((dates) => {
+            return document.querySelector('.lujscdp-hci').getAttribute('data-luh-i') === dates.substr(0, dates.indexOf(','))
+          }, dates)
+          .evaluate(() => {
+            let rateElements = document.querySelectorAll('.lhpr-content-item')
+            let rates = []
+            for (var rateElement of rateElements.values()) {
+              const divText = rateElement.innerText
+              console.log(divText)
+              if (divText.indexOf('Booking.com') > -1) {
+                rates.push({
+                  provider: 'Booking.com',
+                  rate: parseFloat(divText.substr(1,3))
+                })
+              } else if (divText.indexOf('Expedia.it') > -1) {
+                rates.push({
+                  provider: 'Expedia.it',
+                  rate: parseFloat(divText.substr(1,3))
+                })
+              } else if (divText.indexOf('Hotels.com') > -1) {
+                rates.push({
+                  provider: 'Hotels.com',
+                  rate: parseFloat(divText.substr(1,3))
+                })
+              }
+            }
+            return rates
+          })      
+          .end()
+          .then((document) => {
+            console.log(document)
+            redisClient.hset(hotel, dates, JSON.stringify(document))
+            return cb(null, document)
+          })
+          .catch(function (error) {
+            console.error('Search failed:', error);
+          })
+      }
+    })
+  }
+
   function recoverFromErmes (channel, codes, email) {
     let defer = Q.defer()
     let progress = 0
@@ -511,6 +567,18 @@ module.exports = function(ApiGateway) {
       {arg: 'code', type: 'string', required: true}
     ],
     returns: { arg: 'deleted', type: 'Object'}
+  });
+
+  ApiGateway.remoteMethod('scrapeGoogle', {
+    http: {
+      verb: 'GET'
+    },
+    accepts: [
+      {arg: 'hotel', type: 'string', required: true},
+      {arg: 'uri', type: 'string', required: true},
+      {arg: 'dates', type: 'string', required: true}
+    ],
+    returns: { arg: 'scrape', type: 'Object'}
   });
 
 };
