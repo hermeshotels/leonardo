@@ -407,8 +407,8 @@ module.exports = function(ApiGateway) {
               let rateElements = document.querySelectorAll('.lhpr-content-item')
               let rates = []
               for (var rateElement of rateElements.values()) {
-                const divText = rateElement.innerText
-                rates.push(divText)
+                const divText = rateElement.innerHtml
+                rates.puhs(divText)
               }
               return rates
             })      
