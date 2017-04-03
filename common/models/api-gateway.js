@@ -393,7 +393,7 @@ module.exports = function(ApiGateway) {
         return cb(null, JSON.parse(replies))
       } else {
         let nightmare = Nightmare({
-          waitTimeout: 90000
+          waitTimeout: 190000
         })
         nightmare.goto(`https://google.com/search?q=${uri}#ahotel_dates=${dates}`)
           .wait((dates) => {
