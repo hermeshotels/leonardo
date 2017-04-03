@@ -411,17 +411,17 @@ module.exports = function(ApiGateway) {
                 if (divText.indexOf('Booking.com') > -1) {
                   rates.push({
                     provider: 'Booking.com',
-                    rate: parseFloat(divText.substr(0, divText.indexOf('€')))
+                    rate: parseFloat(divText.substr(0, divText.indexOf(' ')))
                   })
                 } else if (divText.indexOf('Expedia.it') > -1) {
                   rates.push({
                     provider: 'Expedia.it',
-                    rate: parseFloat(divText.substr(0, divText.indexOf('€')))
+                    rate: parseFloat(divText.substr(0, divText.indexOf(' ')))
                   })
                 } else if (divText.indexOf('Hotels.com') > -1) {
                   rates.push({
                     provider: 'Hotels.com',
-                    rate: parseFloat(divText.substr(0, divText.indexOf('€')))
+                    rate: parseFloat(divText.substr(0, divText.indexOf(' ')))
                   })
                 }
               }
