@@ -394,47 +394,51 @@ module.exports = function(ApiGateway) {
         return cb(null, JSON.parse(replies))
       } else {
         let xvfb = new Xvfb()
-        xvfb.startSync()
-        let nightmare = Nightmare({
+        xvfb.start((error, xvfbProcess) => {
+          if (error) console.log(error)
+          let nightmare = Nightmare({
           waitTimeout: 190000
-        })
-        nightmare.goto(`https://google.com/search?q=${uri}#ahotel_dates=${dates}`)
-          .wait((dates) => {
-            return document.querySelector('.lujscdp-hci').getAttribute('data-luh-i') === dates.substr(0, dates.indexOf(','))
-          }, dates)
-          .evaluate(() => {
-            let rateElements = document.querySelectorAll('.lhpr-content-item')
-            let rates = []
-            for (var rateElement of rateElements.values()) {
-              const divText = rateElement.innerText
-              if (divText.indexOf('Booking.com') > -1) {
-                rates.push({
-                  provider: 'Booking.com',
-                  rate: parseFloat(divText.substr(0, divText.indexOf('€')))
-                })
-              } else if (divText.indexOf('Expedia.it') > -1) {
-                rates.push({
-                  provider: 'Expedia.it',
-                  rate: parseFloat(divText.substr(0, divText.indexOf('€')))
-                })
-              } else if (divText.indexOf('Hotels.com') > -1) {
-                rates.push({
-                  provider: 'Hotels.com',
-                  rate: parseFloat(divText.substr(0, divText.indexOf('€')))
-                })
+          })
+          nightmare.goto(`https://google.com/search?q=${uri}#ahotel_dates=${dates}`)
+            .wait((dates) => {
+              return document.querySelector('.lujscdp-hci').getAttribute('data-luh-i') === dates.substr(0, dates.indexOf(','))
+            }, dates)
+            .evaluate(() => {
+              let rateElements = document.querySelectorAll('.lhpr-content-item')
+              let rates = []
+              for (var rateElement of rateElements.values()) {
+                const divText = rateElement.innerText
+                if (divText.indexOf('Booking.com') > -1) {
+                  rates.push({
+                    provider: 'Booking.com',
+                    rate: parseFloat(divText.substr(0, divText.indexOf('€')))
+                  })
+                } else if (divText.indexOf('Expedia.it') > -1) {
+                  rates.push({
+                    provider: 'Expedia.it',
+                    rate: parseFloat(divText.substr(0, divText.indexOf('€')))
+                  })
+                } else if (divText.indexOf('Hotels.com') > -1) {
+                  rates.push({
+                    provider: 'Hotels.com',
+                    rate: parseFloat(divText.substr(0, divText.indexOf('€')))
+                  })
+                }
               }
-            }
-            return rates
-          })      
-          .end()
-          .then((document) => {
-            xvfb.stopSync()
-            redisClient.hset(hotel, dates, JSON.stringify(document))
-            return cb(null, document)
-          })
-          .catch(function (error) {
-            return cb(error, null)
-          })
+              return rates
+            })      
+            .end()
+            .then((document) => {
+              xvfb.stop((error) => {
+                if (error) console.log(error)
+              })
+              redisClient.hset(hotel, dates, JSON.stringify(document))
+              return cb(null, document)
+            })
+            .catch(function (error) {
+              return cb(error, null)
+            })
+        })
       }
     })
   }
