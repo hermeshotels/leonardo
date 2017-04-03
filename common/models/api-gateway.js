@@ -8,6 +8,7 @@ import recoverFormatter from '../formatters/recover';
 import reservationFormatter from '../formatters/reservation';
 import voucherFormatter from '../formatters/voucher';
 import request from 'request';
+import Xvfb from 'xvfb';
 import Nightmare from 'nightmare'
 import Ajv from 'ajv';
 import Q from 'q';
@@ -392,6 +393,8 @@ module.exports = function(ApiGateway) {
         // there is cachce data
         return cb(null, JSON.parse(replies))
       } else {
+        let xvfb = new Xvfb()
+        xvfb.startSync()
         let nightmare = Nightmare({
           waitTimeout: 190000
         })
@@ -426,6 +429,7 @@ module.exports = function(ApiGateway) {
           })      
           .end()
           .then((document) => {
+            xvfb.stopSync()
             redisClient.hset(hotel, dates, JSON.stringify(document))
             return cb(null, document)
           })
