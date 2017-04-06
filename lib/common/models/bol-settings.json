@@ -1,0 +1,28 @@
+{
+  "name": "BolSettings",
+  "plural": "BolSettings",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "hotelId": {
+      "type": "number",
+      "required": true
+    },
+    "general": {
+      "type": "object"
+    },
+    "payment": {
+      "type": "object"
+    },
+    "look": {
+      "type": "object"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}
