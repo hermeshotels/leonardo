@@ -330,7 +330,7 @@ module.exports = function(ApiGateway) {
           date: new Date(),
           hotel: reservation.hotel,
           channel: reservation.channel,
-          email: reservation.email
+          email: reservation.email.replace(/\s/g, '')
         }, (error, model) => {
           if (error) return cb(error, null);
           logger.verbose(`[RECOVER] New reservation created, send back to the client with the new internal code`)
@@ -352,12 +352,12 @@ module.exports = function(ApiGateway) {
     }, (error, data) => {
       if (error) return cb(error, null);
       if (!data) {
-        logger.verbose(`Reservation not found: ${data} with code: ${code}`)
+        logger.verbose(`[RECOVER] Reservation not found: ${data} with code: ${code}`)
         return cb(null, null)
       }
       recoverFromErmes(data.channel, data.rescodes, data.email).then((reslist) => {
         if (reslist[0].indexOf('errore') > -1) {
-          logger.verbose(`Reservation not found code: ${data.rescodes}, channel: ${data.channel}, email: ${data.email}`)
+          logger.verbose(`[RECOVER] Reservation not found code: ${data.rescodes}, channel: ${data.channel}, email: ${data.email}`)
           // errore nel recupero della prenotazione
           return cb(null, null)
         }
@@ -468,7 +468,6 @@ module.exports = function(ApiGateway) {
         encoding: 'binary'
       }, (error, response, data) => {
         if (error) {
-          logger.verbose(error)
           throw new Error(error)
         }
         resList.push(data);
