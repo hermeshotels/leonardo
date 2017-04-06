@@ -325,7 +325,7 @@ module.exports = function(ApiGateway) {
     });
   }
 
-  ApiGateway.recoverByCode = (code, cb) => {
+  ApiGateway.recoverByCode = (code, resParams, cb) => {
     ApiGateway.app.models.BolReservation.findOne({
       where: {
         code: code
@@ -334,7 +334,31 @@ module.exports = function(ApiGateway) {
       if (error) return cb(error, null);
       if (!data) {
         logger.verbose(`Reservation not found: ${data} with code: ${code}`)
-        return cb(null, null)
+        // create it inside the DB and send back to the client as a new reservation
+        data = {
+          code: Math.random().toString(36).substr(2, 9),
+          rescodes: code,
+          date: new Date(),
+          hotel: resParams.hotel,
+          channel: resParams.channel,
+          email: resParams.email
+        }
+        ApiGateway.app.models.BolReservation.create(data, (error, model) => {
+          if (error) return cb(error, null);
+          recoverFromErmes(data.channel, data.rescodes, data.email).then((reslist) => {
+            if (reslist[0].indexOf('errore') > -1) {
+              logger.verbose(`Reservation not found code: ${data.rescodes}, channel: ${data.channel}, email: ${data.email}`)
+              // errore nel recupero della prenotazione
+              return cb(null, null)
+            }
+            voucherFormatter.format(reslist, data.code, (error, voucher) => {
+              if (error) return cb(error, null);
+              return cb(null, voucher);
+            });
+          }).fail((error) => {
+            return cb(error, null);
+          });
+        });
       }
       recoverFromErmes(data.channel, data.rescodes, data.email).then((reslist) => {
         if (reslist[0].indexOf('errore') > -1) {
