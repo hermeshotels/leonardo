@@ -331,9 +331,12 @@ module.exports = function(ApiGateway) {
         code: code
       }
     }, (error, data) => {
-      if (error) return cb(error, null);
+      if (error) {
+        logger.verbose('[RECOVER] - Error ' + error);
+        return cb(error, null);
+      }
       if (!data) {
-        logger.verbose(`Reservation not found: ${data} with code: ${code}`)
+        logger.verbose(`[RECOVER] Reservation not found: ${data} with code: ${code}`)
         // create it inside the DB and send back to the client as a new reservation
         data = {
           code: Math.random().toString(36).substr(2, 9),
@@ -343,6 +346,7 @@ module.exports = function(ApiGateway) {
           channel: resParams.channel,
           email: resParams.email
         }
+        logger.verbose(`[RECOVER] Trying to rebuild reservation: ${data}`)
         ApiGateway.app.models.BolReservation.create(data, (error, model) => {
           if (error) return cb(error, null);
           recoverFromErmes(data.channel, data.rescodes, data.email).then((reslist) => {
