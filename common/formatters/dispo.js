@@ -164,7 +164,7 @@ function formatServices (services) {
             fascia: service.idfascia,
             name: service.nomeservizio,
             description: service.descrizioneservizio,
-            image: ((service.fotoservizio.length > 0) ? service.fotoservizio.replace(/\s+/g, '%20') : ''),
+            image: ((service.fotoservizio && ervice.fotoservizio.length > 0) ? service.fotoservizio.replace(/\s+/g, '%20') : ''),
             price: service.prezzoservizio,
             fullStay: (service.interosogg === 'true'),
             qty: 0,
