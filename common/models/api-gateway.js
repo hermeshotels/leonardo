@@ -428,7 +428,7 @@ module.exports = function(ApiGateway) {
               for (var j = 0; j < rateElements.length; j++) {
                 let rate = {
                   provider: '',
-                  rate: rateElements[j].getAttribute('data-dp')
+                  rate: rateElements[j].getAttribute('data-dp').replace(/\p{Sc}/g, '')
                 }
                 for (var i = 0; i < rateElements[j].childNodes.length; i++) {
                   if (rateElements[j].childNodes[i].className == "_Tjf") {
