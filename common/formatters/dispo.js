@@ -140,6 +140,10 @@ function formatServices (services) {
   let serviceFound = false;
     services.data.forEach((day) => {
       // scorro la lista dei giorni che includono la lista dei servizi disponibili
+      console.log(day.lista)
+      if (day.lista.servizio.constructor !== Array) {
+        day.lista.servizio = [day.lista.servizio]
+      }
       day.lista.servizio.forEach((service) => {
         // scorro tutti i servizi disponibili per questo giorno
         // controllo se il servizio è già presente nell'array
