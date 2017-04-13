@@ -237,6 +237,7 @@ module.exports = function(ApiGateway) {
       nazione: reservationData.details.country,
       mail: reservationData.details.email,
       smoking: false,
+      telefono: reservationData.details.phone,
       note: reservationData.details.note,
       tipoCarta: reservationData.card.type,
       numeroCarta: reservationData.card.number,
