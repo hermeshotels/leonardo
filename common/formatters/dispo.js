@@ -52,6 +52,7 @@ function formatRoom (rate) {
     minGuest: rate.camera.minpers,
     maxGuest: rate.camera.maxpers,
     dimension: rate.camera.dimensione,
+    roomsLeft: rate.camera.numerocamere,
     inRoom: {
       ariConditioning: (rate.camera.ariacond === 'true'),
       wifi: (rate.camera.wifi === 'true'),
@@ -99,6 +100,7 @@ function formatRate (rate) {
     name: rate.tariffa.nometariffa,
     description: rate.tariffa.descrizionetariffa,
     package: (rate.tariffa.pacchetto === 'true'),
+    packageId: rate.tariffa.idpacchetto,
     cancellable: (rate.tariffa.cancellabile === 'true'),
     offer: (rate.offerta === 'true'),
     total: parseFloat(rate.totale),
