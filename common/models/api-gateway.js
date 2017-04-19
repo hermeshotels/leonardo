@@ -289,7 +289,7 @@ module.exports = function(ApiGateway) {
 
     logger.verbose('[CONFIRM] ' + JSON.stringify(qs))
 
-    request.get({
+    request.post({
       url: 'https://secure.ermeshotels.com/customersflash/guestdata.do?method=confirm',
       qs: qs,
       encoding: 'binary',
