@@ -55,7 +55,10 @@ function formatResRoom (reservation) {
     total: reservation.totale
   }
   console.log(reservation.servizi.servizio)
-  if (reservation.servizi && reservation.servizi.servizio && reservation.servizi.servizio.constructor === Array) {
+  if (reservation.servizi.servizio.constructor !== Array) {
+    reservation.servizi.servizio = [reservation.servizi.servizio]
+  }
+  if (reservation.servizi && reservation.servizi.servizio) {
     reservation.servizi.servizio.forEach((service) => {
       let serviceIndex = res.services.findIndex((addedService) => {
         return parseInt(addedService.id) === parseInt(service.id)
