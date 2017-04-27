@@ -468,9 +468,7 @@ module.exports = function(ApiGateway) {
         useQueryString: true,
         encoding: 'binary'
       }, (error, response, data) => {
-        console.log('ii+ ' + email)
-        console.log('ii+ ' + code)
-        console.log('ii+ ' + channel)
+        console.log(response)
         if (error) {
           throw new Error(error)
         }
