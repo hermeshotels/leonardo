@@ -346,11 +346,13 @@ module.exports = function(ApiGateway) {
   }
 
   ApiGateway.recoverByCode = (code, cb) => {
+    console.log(code)
     ApiGateway.app.models.BolReservation.findOne({
       where: {
         code: code
       }
     }, (error, data) => {
+      console.log(data)
       if (error) return cb(error, null);
       if (!data) {
         logger.verbose(`[RECOVER] Reservation not found: ${data} with code: ${code}`)
