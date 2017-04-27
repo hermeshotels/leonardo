@@ -346,22 +346,17 @@ module.exports = function(ApiGateway) {
   }
 
   ApiGateway.recoverByCode = (code, cb) => {
-    console.log(code)
     ApiGateway.app.models.BolReservation.findOne({
       where: {
         code: code
       }
     }, (error, data) => {
-      console.log(data)
       if (error) return cb(error, null);
       if (!data) {
         logger.verbose(`[RECOVER] Reservation not found: ${data} with code: ${code}`)
         return cb(null, null)
       }
       recoverFromErmes(data.channel, data.rescodes, data.email).then((reslist) => {
-        console.log(data.channel)
-        console.log(data.rescodes)
-        console.log(data.email)
         if (reslist[0].indexOf('errore') > -1) {
           logger.verbose(`[RECOVER] Reservation not found code: ${data.rescodes}, channel: ${data.channel}, email: ${data.email}`)
           // errore nel recupero della prenotazione
@@ -473,9 +468,9 @@ module.exports = function(ApiGateway) {
         useQueryString: true,
         encoding: 'binary'
       }, (error, response, data) => {
-        console.log(email)
-        console.log(code)
-        console.log(channel)
+        console.log('ii+ ' + email)
+        console.log('ii+ ' + code)
+        console.log('ii+ ' + channel)
         if (error) {
           throw new Error(error)
         }
