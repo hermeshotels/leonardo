@@ -54,8 +54,7 @@ function formatResRoom (reservation) {
     },
     total: reservation.totale
   }
-  console.log(reservation.servizi.servizio)
-  if (reservation.servizi.servizio.constructor !== Array) {
+  if (reservation.servizi && reservation.servizi.servizio && reservation.servizi.servizio.constructor !== Array) {
     reservation.servizi.servizio = [reservation.servizi.servizio]
   }
   if (reservation.servizi && reservation.servizi.servizio) {
