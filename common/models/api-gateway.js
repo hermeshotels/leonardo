@@ -324,18 +324,27 @@ module.exports = function(ApiGateway) {
       if (error) return cb(error, null);
       if (!data) {
         // reservation does not exist, lest create it and return back to the client
-        logger.verbose(`[RECOVER] Given code ${reservation.codes} does not exist in the current DB`)
-        ApiGateway.app.models.BolReservation.create({
-          code: Math.random().toString(36).substr(2, 9),
-          rescodes: reservation.codes,
-          date: new Date(),
-          hotel: reservation.hotel,
-          channel: reservation.channel,
-          email: reservation.email.replace(/\s/g, '')
-        }, (error, model) => {
-          if (error) return cb(error, null);
-          logger.verbose(`[RECOVER] New reservation created, send back to the client with the new internal code`)
-          return cb(null, model);
+        recoverFromErmes(reservation.channel, reservation.codes, reservation.email).then((reslist) => {
+          if (reslist[0].indexOf('errore') > -1) {
+            logger.verbose(`[RECOVER] Reservation not found code: ${data.rescodes}, channel: ${data.channel}, email: ${data.email}`)
+            // errore nel recupero della prenotazione
+            return cb(null, null)
+          }
+          logger.verbose(`[RECOVER] Given code ${reservation.codes} does not exist in the current DB`)
+          ApiGateway.app.models.BolReservation.create({
+            code: Math.random().toString(36).substr(2, 9),
+            rescodes: reservation.codes,
+            date: new Date(),
+            hotel: reservation.hotel,
+            channel: reservation.channel,
+            email: reservations[0].datiprenotazione.prenotazione.mail.replace(/\s/g, '')
+          }, (error, model) => {
+            if (error) return cb(error, null);
+            logger.verbose(`[RECOVER] New reservation created, send back to the client with the new internal code`)
+            return cb(null, model);
+          });
+        }).fail((error) => {
+          return cb(error, null);
         });
       } else {
         // reservation exist, return it
