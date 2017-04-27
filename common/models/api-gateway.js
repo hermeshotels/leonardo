@@ -359,6 +359,9 @@ module.exports = function(ApiGateway) {
         return cb(null, null)
       }
       recoverFromErmes(data.channel, data.rescodes, data.email).then((reslist) => {
+        console.log(data.channel)
+        console.log(data.rescodes)
+        console.log(data.email)
         if (reslist[0].indexOf('errore') > -1) {
           logger.verbose(`[RECOVER] Reservation not found code: ${data.rescodes}, channel: ${data.channel}, email: ${data.email}`)
           // errore nel recupero della prenotazione
