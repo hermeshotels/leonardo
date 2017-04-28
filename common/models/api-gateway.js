@@ -293,6 +293,9 @@ module.exports = function(ApiGateway) {
         })
       }
     })
+    if (reservationData.promoCode && reservationData.promoCode.length > 0) {
+      qs.promoCode = reservationData.promoCode
+    }
     /*
     Parse dei servizi, scorro ogni servizio e controllo se la quantità
     selezionata è maggiore di 0, in caso positivo controllo per quali giorni
