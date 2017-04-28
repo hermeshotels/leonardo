@@ -217,33 +217,6 @@ module.exports = function(ApiGateway) {
   }
 
   ApiGateway.confirm = (reservationData, cb) => {
-    /* json validation
-    let schema = {
-      type: 'object',
-      required: [
-        'channel',
-        'hotel',
-        'arrival',
-        'departure',
-        'details.fullname',
-        'details.zip',
-        'details.address',
-        'details.city',
-        'details.province',
-        'details.country',
-        'details.email',
-        'details.note',
-        'card.type',
-        'card.number',
-        'card.expire',
-        'card.holder',
-        'card.cvv'
-      ]
-    }
-
-    let ajv = new Ajv()
-    let valid = ajv.validate(schema, reservationData);
-    */
     
     let qs = {
       ca_id: reservationData.channel,
