@@ -7,6 +7,7 @@ import confirmFormatter from '../formatters/confirm';
 import recoverFormatter from '../formatters/recover';
 import reservationFormatter from '../formatters/reservation';
 import voucherFormatter from '../formatters/voucher';
+import packageFormatter from '../formatters/package';
 import request from 'request';
 import Xvfb from 'xvfb';
 import Nightmare from 'nightmare'
@@ -144,6 +145,27 @@ module.exports = function(ApiGateway) {
         )
         // return the dispo query
         return cb(null, dispo)
+      })
+    })
+  }
+
+  ApiGateway.packList = function(channel, hotel, cb){
+    let qs = {
+      ca_id: channel,
+      ho_id: hotel
+    }
+    logger.verbose('[CHECKPACK] ' + JSON.stringify(qs))
+    request.get({
+      url: 'https://secure.ermeshotels.com/customersflash/package.do?method=search',
+      qs: qs,
+      enconding: 'binary',
+      useQueryString: true
+    }, (error, response, data) => {
+      if (error) return cb(error, null)
+      packageFormatter.format(data, (error, packages) => {
+        console.log(packages)
+        if (error) return cb(error, null);
+        return cb(null, packages)
       })
     })
   }
@@ -529,6 +551,17 @@ module.exports = function(ApiGateway) {
       required: true
     },
     returns: {arg: 'dispo', type: 'Object'}
+  });
+
+  ApiGateway.remoteMethod('packList', {
+    http: {
+      verb: 'GET'
+    },
+    accepts: [
+      {arg: 'channel', type: 'string', required: true},
+      {arg: 'hotel', type: 'string', required: true}
+    ],
+    returns: { arg: 'packages', type: 'Object'}
   });
   
   ApiGateway.remoteMethod('checkPortal', {
