@@ -100,7 +100,7 @@ function formatRate (rate) {
     name: rate.tariffa.nometariffa,
     description: rate.tariffa.descrizionetariffa,
     package: (rate.tariffa.pacchetto === 'true'),
-    packageId: rate.tariffa.idpacchetto,
+    packageId: parseInt(rate.tariffa.idpacchetto),
     cancellable: (rate.tariffa.cancellabile === 'true'),
     offer: (rate.offerta === 'true'),
     total: parseFloat(rate.totale),
@@ -142,7 +142,6 @@ function formatServices (services) {
   let serviceFound = false;
     services.data.forEach((day) => {
       // scorro la lista dei giorni che includono la lista dei servizi disponibili
-      console.log(day.lista)
       if (day.lista.servizio.constructor !== Array) {
         day.lista.servizio = [day.lista.servizio]
       }

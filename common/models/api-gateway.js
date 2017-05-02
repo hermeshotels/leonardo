@@ -64,12 +64,17 @@ module.exports = function(ApiGateway) {
   }
 
   ApiGateway.checkDispo = function (filters, cb) {
+    /*
+    Richiesta serve per log ermes
+    */
     let qs = {
       ca_id: filters.channel,
       ho_id: filters.hotel,
       ln_id: filters.language,
       dataArrivo: filters.arrival,
       dataPartenza: filters.departure,
+      richiesta: true,
+      servizi: true
     }
 
     // Check for pre-selected rooms
@@ -148,11 +153,31 @@ module.exports = function(ApiGateway) {
       })
     })
   }
+  // TODO: creare remote method for calls
+  ApiGateway.checkService = function(filters, cb) {
+    let qs = {
+      ca_id: 111,
+      ho_id: 111,
+      dataArrivo: 111,
+      dataPartenza: 111
+    }
+    // cm_id - array di camere selezionate per servizi specifici
+    logger.verbose('[CHEFCKSERVICE] ' + JSON.stringify(qs))
+    request.get({
+      url: 'https://secure.ermeshotels.com/customersflash/serviceAvail.do?method=search',
+      qs: qs,
+      enconding: 'binary',
+      useQueryString: true
+    })
+  }
 
-  ApiGateway.packList = function(channel, hotel, cb){
+  ApiGateway.packList = function(channel, hotel, packid, cb){
     let qs = {
       ca_id: channel,
       ho_id: hotel
+    }
+    if (packid) {
+      qs.pc_id = packid
     }
     logger.verbose('[CHECKPACK] ' + JSON.stringify(qs))
     request.get({
@@ -535,7 +560,8 @@ module.exports = function(ApiGateway) {
     },
     accepts: [
       {arg: 'channel', type: 'string', required: true},
-      {arg: 'hotel', type: 'string', required: true}
+      {arg: 'hotel', type: 'string', required: true},
+      {arg: 'packid', type: 'string', required: false}
     ],
     returns: { arg: 'packages', type: 'Object'}
   });

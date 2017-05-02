@@ -22,7 +22,7 @@ export default {
 
 function formatPackage(pack) {
   let formattedPackage = {
-    id: pack.id,
+    id: parseInt(pack.id),
     name: pack.nome,
     description: pack.descrizione,
     includes: {
@@ -41,6 +41,7 @@ function formatPackage(pack) {
       advance: parseInt(pack.advance),
       lastminute: parseInt(pack.lastminute)
     },
+    cancellationPolicy: pack.cancellation,
     arrivals: []
   }
   if (pack.arrivaldomenica === 'true') {
