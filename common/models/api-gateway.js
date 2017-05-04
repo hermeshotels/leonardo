@@ -154,11 +154,11 @@ module.exports = function(ApiGateway) {
                 update['fail'] = instance.fail + 1
               }
               instance.updateAttributes(update)
+              // return the dispo query
+              return cb(null, dispo)
             }
           }
         )
-        // return the dispo query
-        return cb(null, dispo)
       })
     })
   }
