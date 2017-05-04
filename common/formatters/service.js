@@ -4,6 +4,7 @@ export default {
     xmlParser.parseString(xmlData, (error, xml) => {
       if (error) return cb(error, null);
       let services = []
+      console.log(xml)
       if (xml.datidisponibilita.servizi && xml.datidisponibilita.servizi.data) {
         services = formatServices(xml.datidisponibilita.servizi);
         return cb(null, services);

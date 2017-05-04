@@ -173,18 +173,18 @@ module.exports = function(ApiGateway) {
       cm_id: []
     }
     if (filters.rooms && filters.rooms.constructor === Array) {
-      filters.rooms.forEach((room) => {
-        qs.cm_id.push(room.id)
-      })
+      qs.cm_id = filters.rooms
     }
+    console.log(filters.rooms)
     // cm_id - array di camere selezionate per servizi specifici
     logger.verbose('[CHEFCK-SERVICE] ' + JSON.stringify(qs))
     request.get({
+      useQuerystring: true,
       url: 'https://secure.ermeshotels.com/customersflash/serviceAvail.do?method=search',
       qs: qs,
-      enconding: 'binary',
-      useQueryString: true
+      encoding: 'binary'
     }, (error, response, data) => {
+      console.log(response)
       if (error) return cb(error, null)
       serviceFormatter.format(data, (error, services) => {
         if (error) return cb(error, null);
