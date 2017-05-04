@@ -12,7 +12,7 @@ export default {
       ma con tariffa differente. Per evitare duplicati devo raggruppare
       le camere per id per poi inviare al cliente un output sensato.
       */
-      if (xml.datidisponibilita) {
+      if (xml.datidisponibilita && xml.datidisponibilita.disponibilita) {
         // transform in array for processing
         if (xml.datidisponibilita.disponibilita.constructor !== Array) {
           xml.datidisponibilita.disponibilita = [xml.datidisponibilita.disponibilita]
