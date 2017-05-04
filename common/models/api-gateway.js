@@ -175,7 +175,6 @@ module.exports = function(ApiGateway) {
     if (filters.rooms && filters.rooms.constructor === Array) {
       qs.cm_id = filters.rooms
     }
-    console.log(filters.rooms)
     // cm_id - array di camere selezionate per servizi specifici
     logger.verbose('[CHEFCK-SERVICE] ' + JSON.stringify(qs))
     request.get({
