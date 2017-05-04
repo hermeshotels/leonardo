@@ -127,10 +127,10 @@ module.exports = function(ApiGateway) {
       qs: qs,
       encoding: 'binary',
       useQueryString: true
-    }, (error, response, data) => {
-      if (error) return cb(error, null)
-      dispoFormatter.format(data, (error, dispo) => {
-        if (error) return cb(error, null)
+    }, (requestError, response, data) => {
+      if (requestError) return cb(requestError, null)
+      dispoFormatter.format(data, (formatterError, dispo) => {
+        if (formatterError) return cb(formatterError, null)
         // Registro il risultato della conversione
         ApiGateway.app.models.BolRequest.findOrCreate(
           {
@@ -143,8 +143,8 @@ module.exports = function(ApiGateway) {
             success: ((dispo.rooms) ? 1 : 0),
             fail: ((!dispo.rooms) ? 1 : 0)
           },
-          (error, instance, created) => {
-            if (error) return cb(error, null)
+          (dbError, instance, created) => {
+            if (dbError) return cb(dbError, null)
             if (instance) {
               // document found
               let update = {}
