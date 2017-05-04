@@ -8,6 +8,7 @@ import recoverFormatter from '../formatters/recover';
 import reservationFormatter from '../formatters/reservation';
 import voucherFormatter from '../formatters/voucher';
 import packageFormatter from '../formatters/package';
+import serviceFormatter from '../formatters/service';
 import request from 'request';
 import Xvfb from 'xvfb';
 import Nightmare from 'nightmare'
@@ -74,7 +75,15 @@ module.exports = function(ApiGateway) {
       dataArrivo: filters.arrival,
       dataPartenza: filters.departure,
       richiesta: true,
-      servizi: true
+      servizi: false,
+      cross: false
+    }
+    /*
+    Il cross booking funziona solo se la richiesta prevede
+    una sola camera
+    */
+    if (filters.rooms.length === 1) {
+      qs.cross = true
     }
 
     // Check for pre-selected rooms
@@ -156,18 +165,31 @@ module.exports = function(ApiGateway) {
   // TODO: creare remote method for calls
   ApiGateway.checkService = function(filters, cb) {
     let qs = {
-      ca_id: 111,
-      ho_id: 111,
-      dataArrivo: 111,
-      dataPartenza: 111
+      ca_id: filters.channel,
+      ho_id: filters.hotel,
+      ln_id: filters.language,
+      dataArrivo: filters.arrival,
+      dataPartenza: filters.departure,
+      cm_id: []
+    }
+    if (filters.rooms && filters.rooms.constructor === Array) {
+      filters.rooms.forEach((room) => {
+        qs.cm_id.push(room.id)
+      })
     }
     // cm_id - array di camere selezionate per servizi specifici
-    logger.verbose('[CHEFCKSERVICE] ' + JSON.stringify(qs))
+    logger.verbose('[CHEFCK-SERVICE] ' + JSON.stringify(qs))
     request.get({
       url: 'https://secure.ermeshotels.com/customersflash/serviceAvail.do?method=search',
       qs: qs,
       enconding: 'binary',
       useQueryString: true
+    }, (error, response, data) => {
+      if (error) return cb(error, null)
+      serviceFormatter.format(data, (error, services) => {
+        if (error) return cb(error, null);
+        return cb(null, services)
+      })
     })
   }
 
@@ -177,7 +199,7 @@ module.exports = function(ApiGateway) {
       ho_id: hotel
     }
     if (packid) {
-      qs.pc_id = packid
+      qs.pcId = packid
     }
     logger.verbose('[CHECKPACK] ' + JSON.stringify(qs))
     request.get({
@@ -188,7 +210,7 @@ module.exports = function(ApiGateway) {
     }, (error, response, data) => {
       if (error) return cb(error, null)
       packageFormatter.format(data, (error, packages) => {
-        console.log(packages)
+
         if (error) return cb(error, null);
         return cb(null, packages)
       })
@@ -552,6 +574,21 @@ module.exports = function(ApiGateway) {
       required: true
     },
     returns: {arg: 'dispo', type: 'Object'}
+  });
+
+  ApiGateway.remoteMethod('checkService', {
+    http: {
+      verb: 'POST'
+    },
+    accepts: {
+      arg: 'filters',
+      type: 'Object',
+      http: {
+        source: "body"
+      },
+      required: true
+    },
+    returns: {arg: 'services', type: 'Object'}
   });
 
   ApiGateway.remoteMethod('packList', {
