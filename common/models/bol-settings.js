@@ -16,7 +16,7 @@ module.exports = function(Bolsettings) {
           // Document found needs to update
           instance.updateAttributes(settings, (error, instance) => {
             if (error) return cb(error, null)
-            return (null, instance)
+            return cb(null, instance)
           })
         }
       }
