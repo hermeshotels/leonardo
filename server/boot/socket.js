@@ -105,11 +105,18 @@ module.exports = function socketSetup(server) {
       */
       socket.on('client-room-selection', function (data) {
         // verifico se l'hotel relativo al socket è presente nella lista clients
-        if (clients[data.hotel]) {
+        if (clients[socket.hotel]) {
           // verifico se la sessione esiste nella lista corrente degli hotels
-          if (clients[data.hotel][data.sessionid]) {
+          if (clients[socket.hotel][socket.sessionid]) {
             // la session esiste, aggiorno con la camera selezionata, la posizione è sempre rooms
-            clients[data.hotel][data.sessionid].room = data.room
+            clients[socket.hotel][socket.sessionid].room = data.room
+            // notifico il server
+            console.log(`[SOCKET] send selected room to server to hotel ${socket.hotel} from session id ${socket.sessionid}`)
+            server.io.to(socket.hotel).emit('backSelectRoom', {
+              hotel: socket.hotel,
+              sessionid: socket.sessionid,
+              data: data
+            })
           }
         }
       })
@@ -119,13 +126,19 @@ module.exports = function socketSetup(server) {
       */
       socket.on('client-extra-service', function (data) {
         // Verifico se l'hotel relativo al socket è presente nella lista clients
-        if (clients[data.hotel]) {
+        if (clients[socket.hotel]) {
           // verifico se la sessione è stata già creata nella lista clients
-          if (clients[data.hotel][data.sessionid]) {
+          if (clients[socket.hotel][socket.sessionid]) {
             // la session esiste, la aggiorno con il valor dei serivzi compresa posizione
-            clients[data.hotel][data.sessionid].rooms = data.services
-            clients[data.hotel][data.sessionid].position = data.position
+            clients[socket.hotel][socket.sessionid].rooms = data.services
+            clients[socket.hotel][socket.sessionid].position = data.position
             // notifico il server dell'arrivo delle nuove camere
+            console.log(`[SOCKET] send extra services to hotel ${socket.hotel} from session id ${socket.sessionid}`)
+            server.io.to(socket.hotel).emit('backExtraServices', {
+              hotel: socket.hotel,
+              sessionid: socket.sessionid,
+              data: data
+            })
           }
         }
       })
@@ -134,24 +147,23 @@ module.exports = function socketSetup(server) {
       */
       socket.on('client-services-selected', function (data) {
         // verifico se l'hotel relativo al socket è presente nella lista clients
-        if (clients[data.hotel]) {
+        if (clients[socket.hotel]) {
           // verifico se la session è stata già creta nella lista clients
-          if (clients[data.hotel][data.sessionid]) {
+          if (clients[socket.hotel][socket.sessionid]) {
             // la session esiste, la aggiorno con il valore dei servizi selezionati
-            clients[data.hotel][data.sessionid].selectedServices = data.services
+            clients[socket.hotel][socket.sessionid].selectedServices = data.services
           }
         }
       })
       /*
       Il client ha avviato la chat ed ha inserito un nome utente
       */
-      socket.on('client-chat-username', function (data) {
-        // verifico se l'hotel relativo al socket è presente nella lista clients
-        if (clients[data.hotel]) {
+      socket.on('client-chat-username', function (data) {        // verifico se l'hotel relativo al socket è presente nella lista clients
+        if (clients[socket.hotel]) {
           // verifico se la sessione è stata già creta nella lista clients
-          if (clients[data.hotel][data.sessionid]) {
+          if (clients[socket.hotel][socket.sessionid]) {
             // imposto lo usename sul socket
-            clients[data.hotel][data.sessionid].username = data.username
+            clients[socket.hotel][socket.sessionid].username = data.username
             // notifico il nuovo username al server
           }
         }
@@ -162,28 +174,45 @@ module.exports = function socketSetup(server) {
       di riferimento
       */
       socket.on('new-chat-message', function (data) {
-        // verifico se l'hotel relativo socket è presente nella lista
-        if (clients[data.hotel]) {
-          // verifico se la sessione è stata già creata nella lista clients
-          if (clients[data.hotel][data.sessionid]) {
-            /*
-            Verifico se la sessione ha un elenco di messaggio validi per l'inserimento
-            altrimenti lo genero
-            */
-            let session = clients[data.hotel][data.sessionid]
-            if (!session.chat || !session.chat.constructor === Array) {
-              // l'elenco dei messaggi non esiste o non è nel corretto formato
-              session.chat = []
+        console.log(data)
+        if (data.from === 'front') {
+          if (clients[socket.hotel]) {
+            // verifico se la sessione è stata già creata nella lista clients
+            if (clients[socket.hotel][socket.sessionid]) {
+              /*
+              Verifico se la sessione ha un elenco di messaggio validi per l'inserimento
+              altrimenti lo genero
+              */
+              let session = clients[socket.hotel][socket.sessionid]
+              if (!session.chat || !session.chat.constructor === Array) {
+                // l'elenco dei messaggi non esiste o non è nel corretto formato
+                session.chat = []
+              }
+              // inserisco il nuovo messagio all'interno della lista
+              session.chat.push({
+                from: data.from,
+                message: data.message
+              })
+              console.log(`[SOCKET] new chat message ${socket.hotel} from session id ${socket.sessionid} from ${data.from} sent to server`)
+              server.io.to(socket.hotel).emit('backNewMessage', {
+                hotel: socket.hotel,
+                sessionid: socket.sessionid,
+                message: data.message,
+                from: data.from
+              })
             }
-            // inserisco il nuovo messagio all'interno della lista
-            session.chat.push({
-              from: data.from,
-              message: data.message
-            })
-            /*
-            in base al tipo di sorgente (front,back) notifico il socket corretto del
-            nuovo messaggio
-            */
+          }
+        } else if (data.from === 'back') {
+          console.log(`[SOCKET] new chat message ${data.hotel} from session id ${data.sessionid} from ${data.from} sent to client`)
+          if (clients[data.hotel]) {
+            if (clients[data.hotel][data.sessionid]) {
+              clients[data.hotel][data.sessionid].socket.emit('frontNewMessage', {
+                hotel: socket.hotel,
+                sessionid: socket.sessionid,
+                message: data.message,
+                from: data.from
+              })
+            }
           }
         }
       })
@@ -202,7 +231,19 @@ module.exports = function socketSetup(server) {
       })
 
       socket.on('disconnect', function(){
+        // rimuovo il socket dalla lista dei client connessi
+        console.log(`[SOCKET] socket disconnected ${socket.hotel}`)
+        if (clients[socket.hotel]) {
+          if (clients[socket.hotel][socket.sessionid]) {
+            delete clients[socket.hotel][socket.sessionid]
+          }
+        }
         server.io.to(socket.hotel).emit('backEndSession', socket.sessionid)
+        if (socket.back) {
+          // se il socket è back lascio la room a cui ho fatto accesso precedentemente
+          socket.leave(socket.hotel)
+          console.log(`[SOCKET] socket leave room ${socket.hotel}`)
+        }
       });
     })
   })
