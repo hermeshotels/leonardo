@@ -26,13 +26,13 @@ module.exports = function(ApiGateway) {
     let qs = {
       ca_id: channel,
       ln_id: language || 2,
-      ho_id: hotel || ''
+      ho_id: hotel || '',
+      ENC: 'UTF-8'
     }
   
     request.get({
       url: 'https://secure.ermeshotels.com/customersflash/hotellist.do?method=hotelList',
       qs: qs,
-      encoding: 'binary',
       useQueryString: true
     }, (error, response, data) => {
       if (error) return cb(error, null);
@@ -48,12 +48,12 @@ module.exports = function(ApiGateway) {
       ca_id: channel,
       ho_id: hotel,
       mese: month,
-      anno: year
+      anno: year,
+      ENC: 'UTF-8'
     }
     request.get({
       url: 'https://secure.ermeshotels.com/customersflash/calendar.do?method=calendar',
       qs: qs,
-      encoding: 'binary',
       useQueryString: true
     }, (error, response, data) => {
       if (error) return cb(error, null);
@@ -76,7 +76,8 @@ module.exports = function(ApiGateway) {
       dataPartenza: filters.departure,
       richiesta: true,
       servizi: false,
-      cross: false
+      cross: false,
+      ENC: 'UTF-8'
     }
     /*
     Il cross booking funziona solo se la richiesta prevede
@@ -125,7 +126,6 @@ module.exports = function(ApiGateway) {
     request.get({
       url: 'https://secure.ermeshotels.com/customersflash/avail.do?method=search',
       qs: qs,
-      encoding: 'binary',
       useQueryString: true
     }, (requestError, response, data) => {
       if (requestError) return cb(requestError, null)
@@ -170,7 +170,8 @@ module.exports = function(ApiGateway) {
       ln_id: filters.language,
       dataArrivo: filters.arrival,
       dataPartenza: filters.departure,
-      cm_id: []
+      cm_id: [],
+      ENC: 'UTF-8'
     }
     if (filters.rooms && filters.rooms.constructor === Array) {
       qs.cm_id = filters.rooms
@@ -181,7 +182,6 @@ module.exports = function(ApiGateway) {
       useQuerystring: true,
       url: 'https://secure.ermeshotels.com/customersflash/serviceAvail.do?method=search',
       qs: qs,
-      encoding: 'binary'
     }, (error, response, data) => {
       console.log(response)
       if (error) return cb(error, null)
@@ -195,7 +195,8 @@ module.exports = function(ApiGateway) {
   ApiGateway.packList = function(channel, hotel, packid, cb){
     let qs = {
       ca_id: channel,
-      ho_id: hotel
+      ho_id: hotel,
+      ENC: 'UTF-8'
     }
     if (packid) {
       qs.pcId = packid
@@ -204,7 +205,6 @@ module.exports = function(ApiGateway) {
     request.get({
       url: 'https://secure.ermeshotels.com/customersflash/package.do?method=search',
       qs: qs,
-      enconding: 'binary',
       useQueryString: true
     }, (error, response, data) => {
       if (error) return cb(error, null)
@@ -223,6 +223,7 @@ module.exports = function(ApiGateway) {
       ln_id: filters.language || 2,
       dataArrivo: filters.arrival,
       dataPartenza: filters.departure,
+      ENC: 'UTF-8'
     }
 
     // inserisco i parametri per le camere
@@ -251,7 +252,6 @@ module.exports = function(ApiGateway) {
     request.get({
       'url': 'https://secure.ermeshotels.com/customersflash/availChannelCheck.do?method=search',
       qs: qs,
-      encoding: 'binary',
       useQueryString: true
     }, (error, response, data) => {
       if (error) return cb(error, null)
@@ -285,7 +285,8 @@ module.exports = function(ApiGateway) {
       scadenzaCarta: reservationData.card.expire,
       titolareCarta: reservationData.card.holder,
       cvCarta: reservationData.card.cvv,
-      servizi: ''
+      servizi: '',
+      ENC: 'UTF-8'
     }
     /*
     Parse delle camere, scorro ogni camera agganciata alla prenotazione
@@ -336,7 +337,6 @@ module.exports = function(ApiGateway) {
     request.post({
       url: 'https://secure.ermeshotels.com/customersflash/guestdata.do?method=confirm',
       qs: qs,
-      encoding: 'binary',
       useQueryString: true
     }, (error, response, data) => {
       if (error) return cb(error, null)
@@ -443,10 +443,10 @@ module.exports = function(ApiGateway) {
         url: 'https://secure.ermeshotels.com/customersflash/delete.do?method=delete',
         qs: {
           pr_id: id,
-          ca_id: data.channel
+          ca_id: data.channel,
+          ENC: 'UTF-8'
         },
-        useQueryString: true,
-        enconding: 'binary'
+        useQueryString: true
       }, (error, response, data) => {
         if (error) return cb(error, null)
         if (data.indexOf('errore') > -1) {
