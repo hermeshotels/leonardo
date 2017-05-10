@@ -1,6 +1,7 @@
 import xmlParser from './xmlparser';
 export default {
   format: (xmlData, cb) => {
+    console.log(xmlData)
     xmlParser.parseString(xmlData, (error, xml) => {
       if (error) return cb(error, null);
       let dispo = {
@@ -12,6 +13,12 @@ export default {
       ma con tariffa differente. Per evitare duplicati devo raggruppare
       le camere per id per poi inviare al cliente un output sensato.
       */
+      if (xml.datidisponibilita
+        && xml.datidisponibilita.crossbooking
+        && xml.datidisponibilita.crossbooking.tariffa) {
+          // il crossbookign è presente, formatto la tariffa
+          dispo.crossbooking = formatCross(xml.datidisponibilita.crossbooking)
+        }
       if (xml.datidisponibilita && xml.datidisponibilita.disponibilita) {
         // transform in array for processing
         if (xml.datidisponibilita.disponibilita.constructor !== Array) {
@@ -38,7 +45,7 @@ export default {
         }
         return cb(null, dispo);
       } else {
-        return cb(null, {})
+        return cb(null, dispo);
       }
     });
   }
@@ -187,4 +194,113 @@ function formatServices (services) {
       });
     });
   return formattedServices;
+}
+
+function formatCross (cross) {
+  let formattedCross = {
+    includes: [],
+    cancellationPolicy: cross.tariffa.cancellationpolicy,
+    discount: parseFloat(cross.tariffa.derivazione.scontopercglobale),
+    dispo: []
+  }
+  // rate includes
+  if (cross.tariffa.colazione === 'true') {
+    formattedCross.push('breakfast')
+  }
+  if (cross.tariffa.pranzo === 'true') {
+    formattedCross.push('lunch')
+  }
+  if (cross.tariffa.cena === 'true') {
+    formattedCross.push('dinner')
+  }
+  // format availability
+  if (cross.disponibilita) {
+    if (!cross.disponibilita.constructor === Array) {
+      cross.disponibilita = [cross.disponibilita]
+    }
+    cross.disponibilita.forEach((crossDispo) => {
+      let crossPeriod = {
+        from: crossDispo.datada,
+        to: crossDispo.dataa,
+        rooms: []
+      }
+      if (crossDispo.scelta) {
+
+        if (crossDispo.scelta.constructor !== Array) {
+          crossDispo.scelta = [crossDispo.scelta]
+        }
+
+        crossDispo.scelta.forEach((scelta) => {
+          let formattedRoom = {
+            id: parseInt(scelta.camera.idcamera),
+            name: scelta.camera.nomecamera,
+            description: scelta.camera.descrizionecameralunga,
+            inRoom: {
+              ariConditioning: (scelta.camera.ariacond === 'true'),
+              wifi: (scelta.camera.wifi === 'true'),
+              tvSat: (scelta.camera.tvsat === 'true'),
+              bath: (scelta.camera.jacuzzi === 'true'),
+              shower: (scelta.camera.doccia === 'true')
+            },
+            rates: [],
+            gallery: []
+          }
+
+          if(scelta.camera.fotocamera) {
+            formattedRoom.gallery.push(scelta.camera.fotocamera.replace(/\s+/g, '%20'))
+          }
+
+          if(scelta.camera.fotocamera2) {
+            formattedRoom.gallery.push(scelta.camera.fotocamera2.replace(/\s+/g, '%20'))
+          }
+
+          if(scelta.camera.fotocamera3) {
+            formattedRoom.gallery.push(scelta.camera.fotocamera3.replace(/\s+/g, '%20'))
+          }
+
+          if(scelta.camera.fotocamera4) {
+            formattedRoom.gallery.push(scelta.camera.fotocamera4.replace(/\s+/g, '%20'))
+          }
+
+          if(scelta.camera.fotocamera5) {
+            formattedRoom.gallery.push(scelta.camera.fotocamera5.replace(/\s+/g, '%20'))
+          }
+
+          if(scelta.camera.fotocamera6) {
+            formattedRoom.gallery.push(scelta.camera.fotocamera6.replace(/\s+/g, '%20'))
+          }
+
+          formattedRoom.rates.push({
+            id: parseInt(scelta.camera.idcamera),
+            rateid: parseInt(scelta.id),
+            roomid: parseInt(scelta.camera.idcamera),
+            name: 'Cross Booking',
+            total: parseFloat(scelta.totale),
+            originTotal: parseFloat(scelta.totale),
+            prepaid: 0,
+            currency: scelta.moneta,
+            policy: cross.tariffa.cancellationpolicy,
+            dailyPrices: []
+          })
+
+          if (scelta.costi.giorno.constructor === Array) {
+            for (let i = 0; i < scelta.costi.giorno.length; i++) {
+              formattedRoom.rates[0].dailyPrices.push({
+                day: scelta.costi.giorno[i],
+                price: parseFloat(scelta.costi.costo[i])
+              });
+            }
+          } else {
+            formattedRoom.rates[0].dailyPrices.push({
+              day: scelta.costi.giorno,
+              price: parseFloat(scelta.costi.costo)
+            })
+          }
+          crossPeriod.rooms.push(formattedRoom)
+        })
+      }
+      formattedCross.dispo.push(crossPeriod)
+    })
+  }
+  return formattedCross
 }
