@@ -205,13 +205,13 @@ function formatCross (cross) {
   }
   // rate includes
   if (cross.tariffa.colazione === 'true') {
-    formattedCross.push('breakfast')
+    formattedCross.includes.push('breakfast')
   }
   if (cross.tariffa.pranzo === 'true') {
-    formattedCross.push('lunch')
+    formattedCross.includes.push('lunch')
   }
   if (cross.tariffa.cena === 'true') {
-    formattedCross.push('dinner')
+    formattedCross.includes.push('dinner')
   }
   // format availability
   if (cross.disponibilita) {
