@@ -2,7 +2,6 @@ import xmlParser from './xmlparser';
 export default {
   format: (xmlData, cb) => {
     xmlParser.parseString(xmlData, (error, xml) => {
-      console.log(xml)
       if (error) return cb(error, null);
       let codes = []
       if (xml.errore) {

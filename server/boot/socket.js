@@ -174,7 +174,6 @@ module.exports = function socketSetup(server) {
       di riferimento
       */
       socket.on('new-chat-message', function (data) {
-        console.log(data)
         if (data.from === 'front') {
           if (clients[socket.hotel]) {
             // verifico se la sessione è stata già creata nella lista clients

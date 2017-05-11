@@ -183,7 +183,6 @@ module.exports = function(ApiGateway) {
       url: 'https://secure.ermeshotels.com/customersflash/serviceAvail.do?method=search',
       qs: qs,
     }, (error, response, data) => {
-      console.log(response)
       if (error) return cb(error, null)
       serviceFormatter.format(data, (error, services) => {
         if (error) return cb(error, null);
@@ -289,6 +288,20 @@ module.exports = function(ApiGateway) {
       ENC: 'UTF-8'
     }
     /*
+    Check if cross booking
+    */
+    if (reservationData.cross.length > 0) {
+      qs['dataArrivoCross'] = []
+      qs['dataPartenzaCross'] = []
+      qs['ar_idCross'] = []
+      // this is a cross booking reservation
+      reservationData.cross.forEach((crossSelection, index) => {
+        qs.dataArrivoCross.push(crossSelection.from)
+        qs.dataPartenzaCross.push(crossSelection.to)
+        qs.ar_idCross.push(crossSelection.room.rates[0].rateid.toString())
+      })
+    }
+    /*
     Parse delle camere, scorro ogni camera agganciata alla prenotazione
     ed imposto la tariffa selezionata gli adulti i possibili bambini e le
     relative età, se ci sono override di prezzi per la tariffa specifica
@@ -299,7 +312,11 @@ module.exports = function(ApiGateway) {
       if (index > 0) {
         indexPrefix = (index + 1)
       }
-      qs['ar_id' + indexPrefix] = room.rate.id
+      if (!reservationData.cross || reservationData.cross.length <= 0) {
+        qs['ar_id' + indexPrefix] = room.rate.id
+      } else {
+        qs['ar_id' + indexPrefix] = 0
+      }
       qs['adulti' + indexPrefix] = room.adults
       qs['bambini' + indexPrefix] = room.childs || 0
       if (room.childs > 0) {
@@ -337,8 +354,12 @@ module.exports = function(ApiGateway) {
     request.post({
       url: 'https://secure.ermeshotels.com/customersflash/guestdata.do?method=confirm',
       qs: qs,
+      qsStringifyOptions: {
+        arrayFormat: 'repeat'
+      },
       useQueryString: true
     }, (error, response, data) => {
+      console.log(response)
       if (error) return cb(error, null)
       reservationFormatter.format(data, (error, reservation) => {
         if (error) return cb(error, null);
@@ -521,7 +542,6 @@ module.exports = function(ApiGateway) {
         useQueryString: true,
         encoding: 'binary'
       }, (error, response, data) => {
-        console.log(response)
         if (error) {
           throw new Error(error)
         }

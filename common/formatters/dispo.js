@@ -1,7 +1,6 @@
 import xmlParser from './xmlparser';
 export default {
   format: (xmlData, cb) => {
-    console.log(xmlData)
     xmlParser.parseString(xmlData, (error, xml) => {
       if (error) return cb(error, null);
       let dispo = {
@@ -215,7 +214,7 @@ function formatCross (cross) {
   }
   // format availability
   if (cross.disponibilita) {
-    if (!cross.disponibilita.constructor === Array) {
+    if (cross.disponibilita.constructor !== Array) {
       cross.disponibilita = [cross.disponibilita]
     }
     cross.disponibilita.forEach((crossDispo) => {
