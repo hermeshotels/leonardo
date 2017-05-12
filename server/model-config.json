@@ -47,5 +47,9 @@
   "BolSettings": {
     "dataSource": "ermMongo",
     "public": true
+  },
+  "BolAccessLog": {
+    "dataSource": "ermMongo",
+    "public": true
   }
 }

@@ -1,0 +1,21 @@
+{
+  "name": "BolAccessLog",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "reference": {
+      "type": "string",
+      "required": true
+    },
+    "host": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

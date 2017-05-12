@@ -128,6 +128,7 @@ module.exports = function(ApiGateway) {
       qs: qs,
       useQueryString: true
     }, (requestError, response, data) => {
+      console.log(response)
       if (requestError) return cb(requestError, null)
       dispoFormatter.format(data, (formatterError, dispo) => {
         if (formatterError) return cb(formatterError, null)

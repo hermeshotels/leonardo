@@ -31,6 +31,11 @@
     "email": {
       "type": "string",
       "required": true
+    },
+    "cross": {
+      "type": "boolean",
+      "required": true,
+      "default": false
     }
   },
   "validations": [],
