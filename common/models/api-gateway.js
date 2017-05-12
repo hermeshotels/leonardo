@@ -1,4 +1,7 @@
 'use strict';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import channelFormatter from '../formatters/channel';
 import calendarFormatter from '../formatters/calendar';
 import dispoFormatter from '../formatters/dispo';
@@ -121,7 +124,7 @@ module.exports = function(ApiGateway) {
       qs.promoCode = filters.promocode
     }
 
-    logger.verbose('[CHECKDISPO] ' + JSON.stringify(qs))
+    logger.verbose(`[CHECKDISPO] Check dispo for ${filters.hotel}`, qs)
 
     request.get({
       url: 'https://secure.ermeshotels.com/customersflash/avail.do?method=search',
@@ -178,7 +181,7 @@ module.exports = function(ApiGateway) {
       qs.cm_id = filters.rooms
     }
     // cm_id - array di camere selezionate per servizi specifici
-    logger.verbose('[CHEFCK-SERVICE] ' + JSON.stringify(qs))
+    logger.verbose(`[CHECKSERVICE] Check services for ${filters.hotel}`, qs)
     request.get({
       useQuerystring: true,
       url: 'https://secure.ermeshotels.com/customersflash/serviceAvail.do?method=search',
@@ -201,7 +204,7 @@ module.exports = function(ApiGateway) {
     if (packid) {
       qs.pcId = packid
     }
-    logger.verbose('[CHECKPACK] ' + JSON.stringify(qs))
+    logger.verbose(`[CHECKPACK] Check packages for ${filters.hotel}`, qs)
     request.get({
       url: 'https://secure.ermeshotels.com/customersflash/package.do?method=search',
       qs: qs,
@@ -250,7 +253,7 @@ module.exports = function(ApiGateway) {
     }
 
     request.get({
-      'url': 'https://secure.ermeshotels.com/customersflash/availChannelCheck.do?method=search',
+      url: 'https://secure.ermeshotels.com/customersflash/availChannelCheck.do?method=search',
       qs: qs,
       useQueryString: true
     }, (error, response, data) => {
@@ -350,7 +353,7 @@ module.exports = function(ApiGateway) {
       }
     })
 
-    logger.verbose('[CONFIRM] ' + JSON.stringify(qs))
+    logger.verbose(`[CONFIRM] reservation sent to server ${filters.hotel}`, qs)
 
     request.post({
       url: 'https://secure.ermeshotels.com/customersflash/guestdata.do?method=confirm',
@@ -374,6 +377,7 @@ module.exports = function(ApiGateway) {
           email: reservationData.details.email
         }, (error, model) => {
           if (error) return cb(error, null);
+          logger.verbose(`[CONFIRMED] reservation confirmed with code ${model.code}`, model)
           return cb(null, model);
         });
       });
@@ -529,6 +533,14 @@ module.exports = function(ApiGateway) {
             })
         })
       }
+    })
+  }
+
+  ApiGateway.accessLogs = (cb) => {
+    const logPath = path.resolve(`${os.homedir()}/code/ecosystem/godblessyou.log`)
+    fs.readFile(logPath, 'utf8', (err, data) => {
+      if (err) throw err
+      return cb(null, JSON.parse(data))
     })
   }
 
@@ -700,6 +712,13 @@ module.exports = function(ApiGateway) {
       {arg: 'dates', type: 'string', required: true}
     ],
     returns: { arg: 'scrape', type: 'Object'}
+  });
+
+  ApiGateway.remoteMethod('accessLogs', {
+    http: {
+      verb: 'GET'
+    },
+    returns: { arg: 'logs', type: 'Object'}
   });
 
 };
