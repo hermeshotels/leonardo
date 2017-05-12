@@ -363,7 +363,6 @@ module.exports = function(ApiGateway) {
       },
       useQueryString: true
     }, (error, response, data) => {
-      console.log(response)
       if (error) return cb(error, null)
       reservationFormatter.format(data, (error, reservation) => {
         if (error) return cb(error, null);
