@@ -204,7 +204,7 @@ module.exports = function(ApiGateway) {
     if (packid) {
       qs.pcId = packid
     }
-    logger.verbose(`[CHECKPACK] Check packages for ${filters.hotel}`, qs)
+    logger.verbose(`[CHECKPACK] Check packages for ${hotel}`, qs)
     request.get({
       url: 'https://secure.ermeshotels.com/customersflash/package.do?method=search',
       qs: qs,
