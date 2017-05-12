@@ -124,14 +124,18 @@ module.exports = function(ApiGateway) {
       qs.promoCode = filters.promocode
     }
 
-    logger.verbose(`[CHECKDISPO] Check dispo for ${filters.hotel}`, qs)
-
     request.get({
       url: 'https://secure.ermeshotels.com/customersflash/avail.do?method=search',
       qs: qs,
       useQueryString: true
     }, (requestError, response, data) => {
       if (requestError) return cb(requestError, null)
+      logger.verbose(`[CHECKDISPO] Check dispo for ${filters.hotel}`, {
+        qs: qs,
+        ermRequest: response.req.path,
+        headers: response.headers,
+        ended: true
+      })
       dispoFormatter.format(data, (formatterError, dispo) => {
         if (formatterError) return cb(formatterError, null)
         // Registro il risultato della conversione
@@ -538,6 +542,7 @@ module.exports = function(ApiGateway) {
     const logPath = path.resolve(`${os.homedir()}/code/ecosystem/godblessyou.log`)
     fs.readFile(logPath, 'utf8', (err, data) => {
       if (err) throw err
+      data = `[${data.substring(0, data.length - 1)}]`
       return cb(null, JSON.parse(data))
     })
   }
