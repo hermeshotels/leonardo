@@ -10,7 +10,8 @@ let logger = new (winston.Logger)({
       filename: 'godblessyou.log',
       level: 'verbose',
       timestamp: true,
-      json: true
+      json: true,
+      eol: ','
     })
   ]
 })
