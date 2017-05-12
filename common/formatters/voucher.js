@@ -15,6 +15,7 @@ export default {
     let mainRes = reservations[0].datiprenotazione.prenotazione;
     voucher.id = mainRes.id;
     voucher.code = code;
+    voucher.cross = (mainRes.cross === 'true'),
     voucher.arrival = mainRes.dataarrivo;
     voucher.departure = mainRes.datapartenza;
     voucher.currency = mainRes.moneta;
@@ -27,12 +28,45 @@ export default {
     voucher.guest.email = mainRes.datiguest.mail;
     voucher.guest.phone = mainRes.datiguest.telefono;
     voucher.guest.note = mainRes.datiguest.note;
-    reservations.forEach((reservation) => {
-      voucher.rooms.push(formatResRoom(reservation.datiprenotazione.prenotazione));
-      voucher.grandTotal += parseFloat(reservation.datiprenotazione.prenotazione.totale);
-    });
+    if (mainRes.cross === 'true') {
+      // cross booking resergvation
+      mainRes.camera.forEach((room) => {
+        voucher.rooms.push(formatCrossRoom(mainRes, room));
+      });
+      voucher.grandTotal += parseFloat(mainRes.totale);
+    } else {
+      // normal reservation
+      reservations.forEach((reservation) => {
+        voucher.rooms.push(formatResRoom(reservation.datiprenotazione.prenotazione));
+        voucher.grandTotal += parseFloat(reservation.datiprenotazione.prenotazione.totale);
+      });
+    }
     return cb(null, voucher);
   }
+}
+
+function formatCrossRoom (reservation, room) {
+  let res = {
+    id: reservation.id,
+    code: reservation.codice,
+    adults: parseInt(reservation.adulti),
+    childs: parseInt(reservation.bambini),
+    services: formatResServices(reservation),
+    name: room.nomecamera,
+    from: room.datada,
+    to: room.dataa,
+    rate: {
+      id: reservation.tariffa.idtariffa,
+      name: reservation.tariffa.nometariffa,
+      breakfast: reservation.colazione,
+      lunch: reservation.pranzo,
+      dinner: reservation.cena,
+      prepaid: parseFloat(reservation.prepagato),
+      cancellationPolicy: reservation.cancellationpolicy
+    },
+    total: reservation.totale,
+  }
+  return res
 }
 
 function formatResRoom (reservation) {
@@ -42,7 +76,7 @@ function formatResRoom (reservation) {
     name: reservation.camera.nomecamera,
     adults: parseInt(reservation.adulti),
     childs: parseInt(reservation.bambini),
-    services: [],
+    services: formatResServices(reservation),
     rate: {
       id: reservation.tariffa.idtariffa,
       name: reservation.tariffa.nometariffa,
@@ -54,25 +88,30 @@ function formatResRoom (reservation) {
     },
     total: reservation.totale
   }
+  return res;
+}
+
+function formatResServices (reservation) {
+  let services = []
   if (reservation.servizi && reservation.servizi.servizio && reservation.servizi.servizio.constructor !== Array) {
     reservation.servizi.servizio = [reservation.servizi.servizio]
   }
   if (reservation.servizi && reservation.servizi.servizio) {
     reservation.servizi.servizio.forEach((service) => {
-      let serviceIndex = res.services.findIndex((addedService) => {
+      let serviceIndex = services.findIndex((addedService) => {
         return parseInt(addedService.id) === parseInt(service.id)
       })
       if (serviceIndex > -1) {
         // il servizio esiste
-        res.services[serviceIndex].qty++
-        res.services[serviceIndex].price += parseFloat(service.prezzo)
-        res.services[serviceIndex].days.push({
+        services[serviceIndex].qty++
+        services[serviceIndex].price += parseFloat(service.prezzo)
+        services[serviceIndex].days.push({
           day: service.data,
           qty: parseInt(service.numero),
           price: parseFloat(service.prezzo)
         })
       } else {
-        res.services.push({
+        services.push({
           id: service.id,
           name: service.nome,
           qty: 1,
@@ -86,5 +125,5 @@ function formatResRoom (reservation) {
       }
     })
   }
-  return res;
+  return services
 }
