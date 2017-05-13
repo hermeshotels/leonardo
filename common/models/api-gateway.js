@@ -356,7 +356,7 @@ module.exports = function(ApiGateway) {
       }
     })
 
-    logger.verbose(`[CONFIRM] reservation sent to server ${filters.hotel}`, qs)
+    logger.verbose(`[CONFIRM] reservation sent to server ${reservationData.hotel}`, qs)
 
     request.post({
       url: 'https://secure.ermeshotels.com/customersflash/guestdata.do?method=confirm',
