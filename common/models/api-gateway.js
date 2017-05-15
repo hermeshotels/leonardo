@@ -404,20 +404,17 @@ module.exports = function(ApiGateway) {
             return cb(null, null)
           }
           logger.verbose(`[RECOVER] Given code ${reservation.codes} does not exist in the current DB`)
-          voucherFormatter.format(reslist, data.code, (error, voucher) => {
+          ApiGateway.app.models.BolReservation.create({
+            code: Math.random().toString(36).substr(2, 9),
+            rescodes: reservation.codes,
+            date: new Date(),
+            hotel: reservation.hotel,
+            channel: reservation.channel,
+            email: reservation.email.replace(/\s/g, '')
+          }, (error, model) => {
             if (error) return cb(error, null);
-            ApiGateway.app.models.BolReservation.create({
-              code: Math.random().toString(36).substr(2, 9),
-              rescodes: reservation.codes,
-              date: new Date(),
-              hotel: reservation.hotel,
-              channel: reservation.channel,
-              email: vocuher.guest.email.replace(/\s/g, '')
-            }, (error, model) => {
-              if (error) return cb(error, null);
-              logger.verbose(`[RECOVER] New reservation created, send back to the client with the new internal code`)
-              return cb(null, model);
-            });
+            logger.verbose(`[RECOVER] New reservation created, send back to the client with the new internal code`)
+            return cb(null, model);
           });
         }).fail((error) => {
           return cb(error, null);
