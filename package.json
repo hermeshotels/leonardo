@@ -7,10 +7,10 @@
     "start": "node .",
     "watch": "./node_modules/.bin/nodemon --exec babel-node .",
     "build": "babel . --out-dir lib --ignore node_modules,lib --copy-files",
-    "posttest": "npm run lint && nsp check"
+    "test": "mocha --compiler js:babel-core --require babel-register ./test/*.test.js"
   },
   "dependencies": {
-    "ajv": "^4.11.3",
+    "ajv": "^5.1.0",
     "async": "^2.1.4",
     "babel-cli": "^6.22.2",
     "babel-preset-es2015": "^6.22.0",
@@ -38,11 +38,17 @@
   },
   "devDependencies": {
     "babel-cli": "^6.24.0",
+    "babel-core": "^6.24.1",
+    "babel-polyfill": "^6.23.0",
     "babel-preset-es2015": "^6.24.0",
+    "babel-register": "^6.24.1",
+    "chai": "^3.5.0",
     "eslint": "^2.13.1",
     "eslint-config-loopback": "^4.0.0",
+    "mocha": "^3.3.0",
     "nodemon": "^1.11.0",
-    "nsp": "^2.1.0"
+    "nsp": "^2.1.0",
+    "supertest": "^3.0.0"
   },
   "repository": {
     "type": "",
