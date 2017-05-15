@@ -39,7 +39,6 @@ module.exports = function(ApiGateway) {
       useQueryString: true
     }, (error, response, data) => {
       if (error) return cb(error, null);
-      console.log(response)
       channelFormatter.format(data, (error, channel) => {
         if (error) return cb(error, null);
         return cb(null, channel);
