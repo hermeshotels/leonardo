@@ -133,6 +133,7 @@ module.exports = function(ApiGateway) {
       logger.verbose(`[CHECKDISPO] Check dispo for ${filters.hotel}`, {
         qs: qs,
         ermRequest: response.req.path,
+        ermResponse: data,
         headers: response.headers,
         ended: true
       })
