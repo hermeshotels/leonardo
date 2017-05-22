@@ -270,121 +270,124 @@ module.exports = function(ApiGateway) {
   }
 
   ApiGateway.confirm = (reservationData, cb) => {
-    
-    let qs = {
-      ca_id: reservationData.channel,
-      ho_id: reservationData.hotel,
-      ln_id: reservationData.language,
-      dataArrivo: reservationData.arrival,
-      dataPartenza: reservationData.departure,
-      nominativo: reservationData.details.fullname,
-      indirizzo: reservationData.details.address,
-      cap: reservationData.details.zip,
-      citta: reservationData.details.city,
-      provincia: reservationData.details.province,
-      nazione: reservationData.details.country,
-      mail: reservationData.details.email,
-      smoking: false,
-      telefono: reservationData.details.phone,
-      note: reservationData.details.note,
-      tipoCarta: reservationData.card.type,
-      numeroCarta: reservationData.card.number,
-      scadenzaCarta: reservationData.card.expire,
-      titolareCarta: reservationData.card.holder,
-      cvCarta: reservationData.card.cvv,
-      servizi: '',
-      ENC: 'UTF-8'
-    }
-    /*
-    Check if cross booking
-    */
-    if (reservationData.cross.length > 0) {
-      qs['dataArrivoCross'] = []
-      qs['dataPartenzaCross'] = []
-      qs['ar_idCross'] = []
-      // this is a cross booking reservation
-      reservationData.cross.forEach((crossSelection, index) => {
-        qs.dataArrivoCross.push(crossSelection.from)
-        qs.dataPartenzaCross.push(crossSelection.to)
-        qs.ar_idCross.push(crossSelection.room.rates[0].rateid.toString())
+    try {
+      let qs = {
+        ca_id: reservationData.channel,
+        ho_id: reservationData.hotel,
+        ln_id: reservationData.language,
+        dataArrivo: reservationData.arrival,
+        dataPartenza: reservationData.departure,
+        nominativo: reservationData.details.fullname,
+        indirizzo: reservationData.details.address,
+        cap: reservationData.details.zip,
+        citta: reservationData.details.city,
+        provincia: reservationData.details.province,
+        nazione: reservationData.details.country,
+        mail: reservationData.details.email,
+        smoking: false,
+        telefono: reservationData.details.phone,
+        note: reservationData.details.note,
+        tipoCarta: reservationData.card.type,
+        numeroCarta: reservationData.card.number,
+        scadenzaCarta: reservationData.card.expire,
+        titolareCarta: reservationData.card.holder,
+        cvCarta: reservationData.card.cvv,
+        servizi: '',
+        ENC: 'UTF-8'
+      }
+      /*
+      Check if cross booking
+      */
+      if (reservationData.cross.length > 0) {
+        qs['dataArrivoCross'] = []
+        qs['dataPartenzaCross'] = []
+        qs['ar_idCross'] = []
+        // this is a cross booking reservation
+        reservationData.cross.forEach((crossSelection, index) => {
+          qs.dataArrivoCross.push(crossSelection.from)
+          qs.dataPartenzaCross.push(crossSelection.to)
+          qs.ar_idCross.push(crossSelection.room.rates[0].rateid.toString())
+        })
+      }
+      /*
+      Parse delle camere, scorro ogni camera agganciata alla prenotazione
+      ed imposto la tariffa selezionata gli adulti i possibili bambini e le
+      relative età, se ci sono override di prezzi per la tariffa specifica
+      li imposto così da sovrascriverla
+      */
+      reservationData.rooms.forEach((room, index) => {
+        let indexPrefix = '';
+        if (index > 0) {
+          indexPrefix = (index + 1)
+        }
+        if (!reservationData.cross || reservationData.cross.length <= 0) {
+          qs['ar_id' + indexPrefix] = room.rate.id
+        } else {
+          qs['ar_id' + indexPrefix] = 0
+        }
+        qs['adulti' + indexPrefix] = room.adults
+        qs['bambini' + indexPrefix] = room.childs || 0
+        if (room.childs > 0) {
+          qs['avail_etaBambini' + indexPrefix] = room.childsAge.join(',')
+        }
+        // check if there is a overrided rate
+        if (room.rate.overrided) {
+          qs['prezzi' + indexPrefix] = []
+          room.rate.prices.forEach((day) => {
+            qs['prezzi' + indexPrefix].push(day.price)
+          })
+        }
       })
-    }
-    /*
-    Parse delle camere, scorro ogni camera agganciata alla prenotazione
-    ed imposto la tariffa selezionata gli adulti i possibili bambini e le
-    relative età, se ci sono override di prezzi per la tariffa specifica
-    li imposto così da sovrascriverla
-    */
-    reservationData.rooms.forEach((room, index) => {
-      let indexPrefix = '';
-      if (index > 0) {
-        indexPrefix = (index + 1)
+      if (reservationData.promoCode && reservationData.promoCode.length > 0) {
+        qs.promoCode = reservationData.promoCode
       }
-      if (!reservationData.cross || reservationData.cross.length <= 0) {
-        qs['ar_id' + indexPrefix] = room.rate.id
-      } else {
-        qs['ar_id' + indexPrefix] = 0
-      }
-      qs['adulti' + indexPrefix] = room.adults
-      qs['bambini' + indexPrefix] = room.childs || 0
-      if (room.childs > 0) {
-        qs['avail_etaBambini' + indexPrefix] = room.childsAge.join(',')
-      }
-      // check if there is a overrided rate
-      if (room.rate.overrided) {
-        qs['prezzi' + indexPrefix] = []
-        room.rate.prices.forEach((day) => {
-          qs['prezzi' + indexPrefix].push(day.price)
-        })
-      }
-    })
-    if (reservationData.promoCode && reservationData.promoCode.length > 0) {
-      qs.promoCode = reservationData.promoCode
-    }
-    /*
-    Parse dei servizi, scorro ogni servizio e controllo se la quantità
-    selezionata è maggiore di 0, in caso positivo controllo per quali giorni
-    è stato selezionato e lo aggiungo alla prima camera.
-    TODO: distinzione dei servizi per camera
-    */
-    reservationData.services.forEach((service) => {
-      if (service.qty > 0) {
-        service.days.forEach((day) => {
-          if (day.selected > 0) {
-            qs.servizi += `${day.date};${service.id};${service.fascia};${day.selected}/`
-          }
-        })
-      }
-    })
+      /*
+      Parse dei servizi, scorro ogni servizio e controllo se la quantità
+      selezionata è maggiore di 0, in caso positivo controllo per quali giorni
+      è stato selezionato e lo aggiungo alla prima camera.
+      TODO: distinzione dei servizi per camera
+      */
+      reservationData.services.forEach((service) => {
+        if (service.qty > 0) {
+          service.days.forEach((day) => {
+            if (day.selected > 0) {
+              qs.servizi += `${day.date};${service.id};${service.fascia};${day.selected}/`
+            }
+          })
+        }
+      })
 
-    logger.verbose(`[CONFIRM] reservation sent to server ${reservationData.hotel}`, qs)
+      logger.verbose(`[CONFIRM] reservation sent to server ${reservationData.hotel}`, qs)
 
-    request.post({
-      url: 'https://secure.ermeshotels.com/customersflash/guestdata.do?method=confirm',
-      qs: qs,
-      qsStringifyOptions: {
-        arrayFormat: 'repeat'
-      },
-      useQueryString: true
-    }, (error, response, data) => {
-      if (error) return cb(error, null)
-      reservationFormatter.format(data, (error, reservation) => {
-        if (error) return cb(error, null);
-        ApiGateway.app.models.BolReservation.create({
-          code: Math.random().toString(36).substr(2, 9),
-          rescodes: reservation,
-          cross: (reservationData.cross.length > 0),
-          date: new Date(),
-          hotel: reservationData.hotel,
-          channel: reservationData.channel,
-          email: reservationData.details.email
-        }, (error, model) => {
+      request.post({
+        url: 'https://secure.ermeshotels.com/customersflash/guestdata.do?method=confirm',
+        qs: qs,
+        qsStringifyOptions: {
+          arrayFormat: 'repeat'
+        },
+        useQueryString: true
+      }, (error, response, data) => {
+        if (error) return cb(error, null)
+        reservationFormatter.format(data, (error, reservation) => {
           if (error) return cb(error, null);
-          logger.verbose(`[CONFIRMED] reservation confirmed with code ${model.code}`, model)
-          return cb(null, model);
+          ApiGateway.app.models.BolReservation.create({
+            code: Math.random().toString(36).substr(2, 9),
+            rescodes: reservation,
+            cross: (reservationData.cross.length > 0),
+            date: new Date(),
+            hotel: reservationData.hotel,
+            channel: reservationData.channel,
+            email: reservationData.details.email
+          }, (error, model) => {
+            if (error) return cb(error, null);
+            logger.verbose(`[CONFIRMED] reservation confirmed with code ${model.code}`, model)
+            return cb(null, model);
+          });
         });
-      });
-    })
+      })
+    } catch(err) {
+      logger.verbose(`[ERROR] reservation unexcepted error`, err)
+    }
   }
 
   ApiGateway.recover = (reservation, cb) => {
