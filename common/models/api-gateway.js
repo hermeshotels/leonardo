@@ -367,7 +367,10 @@ module.exports = function(ApiGateway) {
         },
         useQueryString: true
       }, (error, response, data) => {
-        if (error) return cb(error, null)
+        if (error) {
+          logger.verbose(`[RESERVATIO-ERROR] error during reservation`, error)
+          return cb(error, null)
+        }
         reservationFormatter.format(data, (error, reservation) => {
           if (error) return cb(error, null);
           ApiGateway.app.models.BolReservation.create({
@@ -380,6 +383,7 @@ module.exports = function(ApiGateway) {
             email: reservationData.details.email
           }, (error, model) => {
             if (error) return cb(error, null);
+            logger.verbose(`[RESERVATIO-ERROR] error during reservation`, error)
             logger.verbose(`[CONFIRMED] reservation confirmed with code ${model.code}`, model)
             return cb(null, model);
           });
@@ -440,6 +444,10 @@ module.exports = function(ApiGateway) {
       if (error) return cb(error, null);
       if (!data) {
         logger.verbose(`[RECOVER] Reservation not found: ${data} with code: ${code}`)
+        return cb(null, null)
+      }
+      if (data && !data.rescodesv || !data.email) {
+        logger.verbose(`[RECOVER] Email or rescode missing`, data)
         return cb(null, null)
       }
       recoverFromErmes(data.channel, data.rescodes, data.email).then((reslist) => {
