@@ -158,13 +158,20 @@ module.exports = function socketSetup(server) {
       /*
       Il client ha avviato la chat ed ha inserito un nome utente
       */
-      socket.on('client-chat-username', function (data) {        // verifico se l'hotel relativo al socket è presente nella lista clients
+      socket.on('client-chat-username', function (data) {        
+        // verifico se l'hotel relativo al socket è presente nella lista clients
         if (clients[socket.hotel]) {
           // verifico se la sessione è stata già creta nella lista clients
           if (clients[socket.hotel][socket.sessionid]) {
             // imposto lo usename sul socket
+            console.log(`[SOCKET] set user name ${data.username} to ${socket.hotel} from session id ${socket.sessionid}`)
             clients[socket.hotel][socket.sessionid].username = data.username
-            // notifico il nuovo username al server
+            // notifico il server
+            server.io.to(socket.hotel).emit('backUserNameSelected', {
+              hotel: socket.hotel,
+              sessionid: socket.sessionid,
+              data: data
+            })
           }
         }
       })

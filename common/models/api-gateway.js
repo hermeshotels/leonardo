@@ -446,10 +446,6 @@ module.exports = function(ApiGateway) {
         logger.verbose(`[RECOVER] Reservation not found: ${data} with code: ${code}`)
         return cb(null, null)
       }
-      if (data && !data.rescodesv || !data.email) {
-        logger.verbose(`[RECOVER] Email or rescode missing`, data)
-        return cb(null, null)
-      }
       recoverFromErmes(data.channel, data.rescodes, data.email).then((reslist) => {
         if (reslist[0].indexOf('errore') > -1) {
           logger.verbose(`[RECOVER] Reservation not found code: ${data.rescodes}, channel: ${data.channel}, email: ${data.email}`)
