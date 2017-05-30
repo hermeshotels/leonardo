@@ -236,6 +236,21 @@ module.exports = function socketSetup(server) {
         }
       })
 
+      socket.on('new-rate-price', function (data) {
+        console.log(`[SOCKET] socket recieved a request for rate override`)
+        if (clients[data.hotel]) {
+          if (clients[data.hotel][data.sessionid]) {
+            clients[data.hotel][data.sessionid].socket.emit('frontNewRatePrice', {
+              hotel: socket.hotel,
+              sessionid: socket.sessionid,
+              room: data.room,
+              rate: data.rate,
+              newPrice: data.newPrice
+            })
+          }
+        }
+      })
+
       socket.on('disconnect', function(){
         // rimuovo il socket dalla lista dei client connessi
         console.log(`[SOCKET] socket disconnected ${socket.hotel}`)
