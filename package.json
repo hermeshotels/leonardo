@@ -26,6 +26,7 @@
     "loopback-connector-mysql": "^2.4.1",
     "loopback-connector-redis": "^0.1.0",
     "loopback-connector-rest": "^2.1.0",
+    "loopback-jwt": "^1.0.2",
     "moment": "^2.18.1",
     "nightmare": "^2.10.0",
     "q": "^1.4.1",

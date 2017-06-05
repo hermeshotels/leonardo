@@ -253,7 +253,7 @@ module.exports = function socketSetup(server) {
 
       socket.on('disconnect', function(){
         // rimuovo il socket dalla lista dei client connessi
-        console.log(`[SOCKET] socket disconnected ${socket.hotel}`)
+        console.log(`[SOCKET] socket disconnected ${socket.hotel} with id ${socket.sessionid}`)
         if (clients[socket.hotel]) {
           if (clients[socket.hotel][socket.sessionid]) {
             delete clients[socket.hotel][socket.sessionid]

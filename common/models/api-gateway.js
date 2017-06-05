@@ -377,6 +377,7 @@ module.exports = function(ApiGateway) {
             code: Math.random().toString(36).substr(2, 9),
             rescodes: reservation,
             cross: (reservationData.cross.length > 0),
+            paymentMethod: reservationData.paymentMethod,
             date: new Date(),
             hotel: reservationData.hotel,
             channel: reservationData.channel,

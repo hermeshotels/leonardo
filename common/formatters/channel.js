@@ -17,7 +17,8 @@ export default {
         let channel = {
           id: xml.daticanale.id,
           name: xml.daticanale.nome,
-          scripts: xml.daticanale.scriptpers,
+          scripts: Buffer.from(xml.daticanale.scriptpers, 'base64').toString('utf8'),
+          adwords: Buffer.from(xml.daticanale.adwordspers, 'base64').toString('utf8'),
           css: xml.daticanale.csspers,
           website: xml.daticanale.linksito,
           googleUA: xml.daticanale.googleid,
