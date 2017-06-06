@@ -197,14 +197,16 @@ module.exports = function socketSetup(server) {
               // inserisco il nuovo messagio all'interno della lista
               session.chat.push({
                 from: data.from,
-                message: data.message
+                message: data.message,
+                new: true
               })
               console.log(`[SOCKET] new chat message ${socket.hotel} from session id ${socket.sessionid} from ${data.from} sent to server`)
               server.io.to(socket.hotel).emit('backNewMessage', {
                 hotel: socket.hotel,
                 sessionid: socket.sessionid,
                 message: data.message,
-                from: data.from
+                from: data.from,
+                new: true
               })
             }
           }
