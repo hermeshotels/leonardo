@@ -253,6 +253,24 @@ module.exports = function socketSetup(server) {
         }
       })
 
+      socket.on('realtimeShot', function (data){
+        console.log(data)
+        // verifico se l'hotel relativo al socket è presente nella lista clients
+        if (clients[socket.hotel]) {
+          // verifico se la sessione è stata già creta nella lista clients
+          if (clients[socket.hotel][socket.sessionid]) {
+            // imposto lo usename sul socket
+            console.log(`[SOCKET] ${socket.hotel} from session id ${socket.sessionid} received a new shot`)
+            // notifico il server
+            server.io.to(socket.hotel).emit('realtimeShot', {
+              hotel: socket.hotel,
+              sessionid: socket.sessionid,
+              shotData: data
+            })
+          }
+        }
+      })
+
       socket.on('disconnect', function(){
         // rimuovo il socket dalla lista dei client connessi
         console.log(`[SOCKET] socket disconnected ${socket.hotel} with id ${socket.sessionid}`)
