@@ -368,7 +368,7 @@ module.exports = function(ApiGateway) {
         useQueryString: true
       }, (error, response, data) => {
         if (error) {
-          logger.verbose(`[RESERVATIO-ERROR] error during reservation`, error)
+          logger.verbose(`[RESERVATION-ERROR] ermes did not register the reservation`, error)
           return cb(error, null)
         }
         reservationFormatter.format(data, (error, reservation) => {
@@ -383,8 +383,9 @@ module.exports = function(ApiGateway) {
             channel: reservationData.channel,
             email: reservationData.details.email
           }, (error, model) => {
-            if (error) return cb(error, null);
-            logger.verbose(`[RESERVATIO-ERROR] error during reservation`, error)
+            if (error) {
+              return logger.verbose(`[RESERVATION-ERROR] new reservation cannot be saved to db`, error)
+            }
             logger.verbose(`[CONFIRMED] reservation confirmed with code ${model.code}`, model)
             return cb(null, model);
           });
