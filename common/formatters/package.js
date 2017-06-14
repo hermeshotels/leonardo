@@ -65,7 +65,7 @@ function formatPackage(pack) {
   if (pack.arrivalsabato === 'true') {
     formattedPackage.arrivals.push('6')
   }
-  if (pack.foto.length > 0) {
+  if (pack.foto && pack.foto.length > 0) {
     formattedPackage.image = pack.foto.replace(/\s+/g, '%20')
   }
   return formattedPackage;

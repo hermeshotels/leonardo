@@ -199,10 +199,11 @@ module.exports = function(ApiGateway) {
     })
   }
 
-  ApiGateway.packList = function(channel, hotel, packid, cb){
+  ApiGateway.packList = function(channel, hotel, packid, language, cb){
     let qs = {
       ca_id: channel,
       ho_id: hotel,
+      ln_id: language,
       ENC: 'UTF-8'
     }
     if (packid) {
@@ -644,7 +645,8 @@ module.exports = function(ApiGateway) {
     accepts: [
       {arg: 'channel', type: 'string', required: true},
       {arg: 'hotel', type: 'string', required: true},
-      {arg: 'packid', type: 'string', required: false}
+      {arg: 'packid', type: 'string', required: false},
+      {arg: 'language', type: 'string', required: false}
     ],
     returns: { arg: 'packages', type: 'Object'}
   });
